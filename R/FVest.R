@@ -6,6 +6,8 @@
 #' combination of these using the SuperLearner package) and returns
 #' the predicted fitted values for Xnew.
 #'
+#'@param model is an estimated Machine Learning model. Typically
+#' a class S3 or S4 object.
 #' @param X is a dataframe containing all the features on which the
 #' model was estimated
 #' @param Y is a vector containing the labels for which the model
@@ -48,21 +50,21 @@ FVest <- function(model,
   dta <- dplyr::as_tibble(cbind(Y = rep(0,nrow(Xnew)),Xnew))
   if (ML == "Lasso"){
     lstar <- model$lambda.min
-    FVs = predict(model,model.matrix(~.,Xnew),s = lstar)
+    FVs = stats::predict(model,stats::model.matrix(~.,Xnew),s = lstar)
   }
 
   else if (ML == "Ridge"){
     lstar <- model$lambda.min
-    FVs = predict(model,model.matrix(~.,Xnew),s = lstar)
+    FVs = stats::predict(model,stats::model.matrix(~.,Xnew),s = lstar)
   }
 
   else if (ML == "RF"){
-    FVs <- predict(model,Xnew)
+    FVs <- stats::predict(model,Xnew)
     FVs <- FVs$predictions
   }
 
   else if (ML == "CIF"){
-    FVs <- predict(model, newdata = Xnew)
+    FVs <- stats::predict(model, newdata = Xnew)
   }
 
   else if (ML == "XGB"){
@@ -74,7 +76,7 @@ FVest <- function(model,
     }
     #Again label should not have any use here
     xgb_data = xgboost::xgb.DMatrix(data = data.matrix(Xnew), label = rep(0,nrow(Xnew)))
-    FVs = predict(model, xgb_data)
+    FVs = stats::predict(model, xgb_data)
   }
 
   else if (ML == "CB"){
@@ -103,7 +105,7 @@ FVest <- function(model,
     if ("SL.CB" %in% ens){
       FVs <- unlist(lapply(ens, function (x){
         sl <- get(x)
-        aux <- sl(Y, X, Xnew, family = gaussian(), obsWeights = rep(1,length(Y)))
+        aux <- sl(Y, X, Xnew, family = stats::gaussian(), obsWeights = rep(1,length(Y)))
         aux$pred
       }))
       FVs <- matrix(FVs, nrow(Xnew), length(ens))
@@ -111,13 +113,9 @@ FVest <- function(model,
       FVs <- rowSums(sharemat*FVs)
     }
     else{
-      FVs = predict(model, Xnew, onlySL = TRUE)
+      FVs = stats::predict(model, Xnew, onlySL = TRUE)
       FVs <- FVs$pred
     }
-  }
-  if (min(FVs) <= 0){
-    warning("There are negative/zero FVs which have been set to 1")
-    FVs = FVs*(FVs > 0) + 1*(FVs <= 0)
   }
   return(FVs)
 }

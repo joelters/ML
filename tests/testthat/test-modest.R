@@ -32,14 +32,14 @@ test_that("CB has no error and gives S3 class", {
   expect_s3_class(m, "catboost.Model")
 })
 #
-# test_that("SL has no error and gives S3 class", {
-#   mad <- mad2019[1:250,]
-#   X <- dplyr::select(mad,-Y)
-#   Y <- mad$Y
-#   expect_no_error(m <- modest(X,Y,"SL",
-#                               ensemble = c("SL.Lasso","SL.Ridge","SL.RF",
-#                                            "SL.CIF","SL.XGB","SL.CB")))
-#   expect_s3_class(m, "SuperLearner")
-# })
+test_that("SL has no error and gives S3 class", {
+  mad <- mad2019[1:250,]
+  X <- dplyr::select(mad,-Y)
+  Y <- mad$Y
+  expect_no_error(m <- modest(X,Y,"SL",
+                              ensemble = c("SL.Lasso","SL.Ridge","SL.RF",
+                                           "SL.CIF","SL.XGB","SL.CB")))
+  expect_s3_class(m, "SuperLearner")
+})
 
 

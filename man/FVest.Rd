@@ -14,6 +14,9 @@ FVest(
 )
 }
 \arguments{
+\item{model}{is an estimated Machine Learning model. Typically
+a class S3 or S4 object.}
+
 \item{X}{is a dataframe containing all the features on which the
 model was estimated}
 

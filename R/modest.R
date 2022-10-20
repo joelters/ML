@@ -42,18 +42,20 @@ modest <- function(X,
       )
     }
     #Estimate model
-    model <- SuperLearner::SuperLearner(Y, X, SL.library = ensemble, family = gaussian(),
-                          cvControl = list(V = 5), obsWeights = weights)
+    model <- SuperLearner::SuperLearner(Y, X, SL.library = ensemble,
+                                        family = stats::gaussian(),
+                                        cvControl = list(V = 5),
+                                        obsWeights = weights)
   }
 
   else if (ML == "Lasso"){
     # XX <- model.matrix(Y ~., dta)
-    model <- glmnet::cv.glmnet(model.matrix(~.,X),Y,alpha = 1, weights = weights)
+    model <- glmnet::cv.glmnet(stats::model.matrix(~.,X),Y,alpha = 1, weights = weights)
   }
 
   else if (ML == "Ridge"){
     # XX <- model.matrix(Y ~., dta)
-    model <- glmnet::cv.glmnet(model.matrix(~.,X),Y,alpha = 0, weights = weights)
+    model <- glmnet::cv.glmnet(stats::model.matrix(~.,X),Y,alpha = 0, weights = weights)
   }
 
   else if (ML == "RF"){

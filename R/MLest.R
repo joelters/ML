@@ -40,8 +40,10 @@ MLest <- function(X,
   X <- dplyr::as_tibble(X)
   if (ML == "SL"){
     #Estimate model
-    m <- SuperLearner(Y, X, SL.library = ensemble, family = gaussian(),
-                      cvControl = list(V = 5), obsWeights = weights)
+    m <- SuperLearner::SuperLearner(Y, X, SL.library = ensemble,
+                                    family = stats::gaussian(),
+                                    cvControl = list(V = 5),
+                                    obsWeights = weights)
     #Fitted values
     if (FVs == TRUE){
       FVs <- m$SL.predict

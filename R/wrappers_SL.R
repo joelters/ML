@@ -1,38 +1,41 @@
 #WRAPPERS FOR SUPERLEARNER
 
 SL.Lasso <- function (Y,X,newX,...) {
-  X <- model.matrix(~.,X)
-  newX <- model.matrix(~.,newX)
+  X <- stats::model.matrix(~.,X)
+  newX <- stats::model.matrix(~.,newX)
   SuperLearner::SL.glmnet(Y,X,newX,...)
 }
 
 
 SL.Ridge <- function (Y,X,newX,...) {
-  X <- model.matrix(~.,X)
-  newX <- model.matrix(~.,newX)
+  X <- stats::model.matrix(~.,X)
+  newX <- stats::model.matrix(~.,newX)
   SuperLearner::SL.glmnet(Y,X,newX,alpha = 0,...)
 }
 
-SL.RF <- function (...) {
-  SuperLearner::SL.ranger(...,mtry = max(floor(ncol(X)/3), 1))
+SL.RF <- function (Y, X,...) {
+  SuperLearner::SL.ranger(Y,X,mtry = max(floor(ncol(X)/3), 1),...)
 }
 
-SL.CIF <- function (...) {
-  SuperLearner::SL.cforest(...,controls = cforest_unbiased(mtry = max(floor(ncol(X)/3), 1)))
+SL.CIF <- function (Y, X,...) {
+  SuperLearner::SL.cforest(Y,X,
+                           controls = party::cforest_unbiased(mtry = max(floor(ncol(X)/3), 1)),
+                           ...)
 }
 
 SL.XGB <- function (...) {
-  SuperLearner::SL.xgboost(...,nrounds = 500)
+  SuperLearner::SL.xgboost(...,nrounds = 200,
+                           max.depth = 1,)
 }
 
 SL.CB <- function (Y, X, newX, family, obsWeights, ...)
 {
   if (is.matrix(X)) {
-    X = as_tibble(X)
+    X = dplyr::as_tibble(X)
   }
   fit <- modest(X, Y, ML = "CB", weights = obsWeights)
   if (is.matrix(newX)) {
-    newX = as_tibble(newX)
+    newX = dplyr::as_tibble(newX)
   }
   ifelse2 <- function(A = TRUE, B,C){if(A == TRUE){return(B)} else{return(C)}}
   pred <- catboost::catboost.predict(fit, ifelse2(is.null(newX),
