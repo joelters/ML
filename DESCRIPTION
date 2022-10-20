@@ -31,4 +31,7 @@ Imports:
     writexl
 Suggests: 
     catboost,
+    testthat (>= 3.0.0),
     xgboost
+    SuperLearner
+Config/testthat/edition: 3

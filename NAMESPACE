@@ -3,3 +3,4 @@
 export(FVest)
 export(MLest)
 export(modest)
+importFrom(SuperLearner,All)

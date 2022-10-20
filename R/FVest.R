@@ -1,0 +1,123 @@
+#' Predict fitted values from Machine Learning model
+#'
+#' `FVest` takes an estimated machine learning model (Lasso, Ridge,
+#' Random Forest, Conditional Inference Forest,
+#' Extreme Gradient Boosting, Catboosting or any
+#' combination of these using the SuperLearner package) and returns
+#' the predicted fitted values for Xnew.
+#'
+#' @param X is a dataframe containing all the features on which the
+#' model was estimated
+#' @param Y is a vector containing the labels for which the model
+#' was estimated
+#' @param Xnew is a dataframe containing the features at which we
+#' we want the predictions. Default is Xnew = X.
+#' @param Ynew is a vector which needs to have length equal to the
+#' rows of Xnew. It only matters that it has correct length so one
+#' could use a vectors of zeros.
+#' @param ML is a string specifying which machine learner to use
+#' @returns vector with fitted values
+#' @examples
+#' X <- dplyr::select(mad2019,-Y)
+#' Y <- mad2019$Y
+#' m <- modest(X,Y,"RF")
+#' FVest(m,X,Y,X[1:5,],Y[1:5],ML = "RF")
+#'
+#' m <- modest(X,Y,"XGB")
+#' FVest(m,X,Y,ML = "XGB")
+#'
+#' m <- modest(X,Y,"SL",
+#' ensemble = c("SL.Lasso","SL.RF","SL.XGB"))
+#' FVest(m,X,Y,ML = "SL")
+#'
+#'
+#' @details Note that the glmnet package which implements Lasso and Ridge
+#' does not handle factor variables (such as the ones in mad2019)
+#' hence for this machine learners, modest turns X into model.matrix(~.,X)
+#' which will perform dummy encoding on factor variables.
+#' @export
+FVest <- function(model,
+                  X,
+                  Y,
+                  Xnew = X,
+                  Ynew = Y,
+                  ML = c("Lasso","Ridge","RF","CIF","XGB","CB","SL")){
+  ML = match.arg(ML)
+  #note that Y in dta is not used for anything so we just want it
+  #to be consistent in the dimensions
+  dta <- dplyr::as_tibble(cbind(Y = rep(0,nrow(Xnew)),Xnew))
+  if (ML == "Lasso"){
+    lstar <- model$lambda.min
+    FVs = predict(model,model.matrix(~.,Xnew),s = lstar)
+  }
+
+  else if (ML == "Ridge"){
+    lstar <- model$lambda.min
+    FVs = predict(model,model.matrix(~.,Xnew),s = lstar)
+  }
+
+  else if (ML == "RF"){
+    FVs <- predict(model,Xnew)
+    FVs <- FVs$predictions
+  }
+
+  else if (ML == "CIF"){
+    FVs <- predict(model, newdata = Xnew)
+  }
+
+  else if (ML == "XGB"){
+    if (!requireNamespace("xgboost", quietly = TRUE)) {
+      stop(
+        "Package \"xgboost\" must be installed to use this function.",
+        call. = FALSE
+      )
+    }
+    #Again label should not have any use here
+    xgb_data = xgboost::xgb.DMatrix(data = data.matrix(Xnew), label = rep(0,nrow(Xnew)))
+    FVs = predict(model, xgb_data)
+  }
+
+  else if (ML == "CB"){
+    if (!requireNamespace("catboost", quietly = TRUE)) {
+      stop(
+        "Package \"catboost\" must be installed to use this function.
+        https://catboost.ai/en/docs/installation/r-installation-binary-installation",
+        call. = FALSE
+      )
+    }
+    #Again label should not have any use here
+    CB.data <- catboost::catboost.load_pool(Xnew,
+                                  label = rep(0,nrow(Xnew)),
+                                  cat_features = c(1:ncol(Xnew)))
+    FVs <- catboost::catboost.predict(model,CB.data)
+  }
+  else if (ML == "SL"){
+    if (!requireNamespace("SuperLearner", quietly = TRUE)) {
+      stop(
+        "Package \"SuperLearner\" must be installed to use this function.",
+        call. = FALSE
+      )
+    }
+    ens <- model$SL.library$library$predAlgorithm
+    # FVs <- model$SL.predict
+    if ("SL.CB" %in% ens){
+      FVs <- unlist(lapply(ens, function (x){
+        sl <- get(x)
+        aux <- sl(Y, X, Xnew, family = gaussian(), obsWeights = rep(1,length(Y)))
+        aux$pred
+      }))
+      FVs <- matrix(FVs, nrow(Xnew), length(ens))
+      sharemat <- matrix(rep(model$coef,nrow(Xnew)), nrow(Xnew), length(ens), byrow = TRUE)
+      FVs <- rowSums(sharemat*FVs)
+    }
+    else{
+      FVs = predict(model, Xnew, onlySL = TRUE)
+      FVs <- FVs$pred
+    }
+  }
+  if (min(FVs) <= 0){
+    warning("There are negative/zero FVs which have been set to 1")
+    FVs = FVs*(FVs > 0) + 1*(FVs <= 0)
+  }
+  return(FVs)
+}

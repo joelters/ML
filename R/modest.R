@@ -13,16 +13,19 @@
 #' @param weights is a vector containing survey weights adding up to 1
 #' @returns the object that the machine learner package returns
 #' @examples
-#' X <- dplyr::select(mad2019,-c(Y,weight))
+#' X <- dplyr::select(mad2019,-Y)
 #' Y <- mad2019$Y
 #' modest(X,Y,"RF")
 #' modest(X,Y,"XGB")
-#' modest(stats::model.matrix(X),Y,"Lasso")
+#' modest(X,Y,"Lasso")
+#' modest(X,Y,"SL",
+#' ensemble = c("SL.Lasso","SL.Ridge","SL.RF","SL.CIF","SL.XGB","SL.CB"))
 #'
-#' @details Note that the glmnet package which implements Lasso and Ridge
-#' does not handle factor variables (such as the ones in mad2019)
-#' hence if X contains factors dummy encoding needs to be used. This
-#' can be done by simply using stats::model.matrix(X) instead of X
+#' @details CB treats all features as discrete. Note that the glmnet package
+#' which implements Lasso and Ridge does not handle factor variables
+#' (such as the ones in mad2019), hence for this machine learners,
+#' modest turns X into model.matrix(~.,X) which will perform dummy
+#' encoding on factor variables.
 #' @export
 modest <- function(X,
                    Y,
@@ -31,8 +34,13 @@ modest <- function(X,
                    weights = NULL){
   ML = match.arg(ML)
   dta <- dplyr::as_tibble(cbind(Y = Y,X))
-  X <- dplyr::as_tibble(X)
   if (ML == "SL"){
+    if (!requireNamespace("SuperLearner", quietly = TRUE)) {
+      stop(
+        "Package \"SuperLearner\" must be installed to use this function.",
+        call. = FALSE
+      )
+    }
     #Estimate model
     model <- SuperLearner::SuperLearner(Y, X, SL.library = ensemble, family = gaussian(),
                           cvControl = list(V = 5), obsWeights = weights)
@@ -40,12 +48,12 @@ modest <- function(X,
 
   else if (ML == "Lasso"){
     # XX <- model.matrix(Y ~., dta)
-    model <- glmnet::cv.glmnet(as.matrix(X),Y,alpha = 1, weights = weights)
+    model <- glmnet::cv.glmnet(model.matrix(~.,X),Y,alpha = 1, weights = weights)
   }
 
   else if (ML == "Ridge"){
     # XX <- model.matrix(Y ~., dta)
-    model <- glmnet::cv.glmnet(as.matrix(X),Y,alpha = 0, weights = weights)
+    model <- glmnet::cv.glmnet(model.matrix(~.,X),Y,alpha = 0, weights = weights)
   }
 
   else if (ML == "RF"){
@@ -64,6 +72,12 @@ modest <- function(X,
   }
 
   else if (ML == "XGB"){
+    if (!requireNamespace("xgboost", quietly = TRUE)) {
+      stop(
+        "Package \"xgboost\" must be installed to use this function.",
+        call. = FALSE
+      )
+    }
     xgb_data = xgboost::xgb.DMatrix(data = data.matrix(X), label = Y)
     model <- xgboost::xgboost(data = xgb_data,
                      nrounds = 200,
@@ -73,7 +87,13 @@ modest <- function(X,
   }
 
   else if (ML == "CB"){
-    warning("CB is treats all features as categorical in this version")
+    if (!requireNamespace("catboost", quietly = TRUE)) {
+      stop(
+        "Package \"catboost\" must be installed to use this function.
+        https://catboost.ai/en/docs/installation/r-installation-binary-installation",
+        call. = FALSE
+      )
+    }
     CB.data <- catboost::catboost.load_pool(X,
                                   label = Y,
                                   cat_features = c(1:ncol(X)),
