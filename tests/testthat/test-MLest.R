@@ -38,13 +38,13 @@ test_that("CB has no error and gives S3 class", {
   expect_length(m[[2]], nrow(X))
 })
 #
-# test_that("SL has no error and gives S3 class", {
-#   mad <- mad2019[1:250,]
-#   X <- dplyr::select(mad,-Y)
-#   Y <- mad$Y
-#   expect_no_error(m <- MLest(X,Y,"SL",
-#                               ensemble = c("SL.Lasso","SL.Ridge","SL.RF",
-#                                            "SL.CIF","SL.XGB","SL.CB")))
-#   expect_s3_class(m[[1]], "SuperLearner")
-#   expect_length(m[[2]], nrow(X))
-# })
+test_that("SL has no error and gives S3 class", {
+  mad <- mad2019[1:250,]
+  X <- dplyr::select(mad,-Y)
+  Y <- mad$Y
+  expect_no_error(m <- MLest(X,Y,"SL",
+                              ensemble = c("SL.Lasso","SL.Ridge","SL.RF",
+                                           "SL.CIF","SL.XGB","SL.CB")))
+  expect_s3_class(m[[1]], "SuperLearner")
+  expect_length(m[[2]], nrow(X))
+})

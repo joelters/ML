@@ -50,14 +50,14 @@ test_that("CB has no error and gives vector of correct length", {
   expect_length(FV2, nrow(X))
 })
 #
-# test_that("SL has no error and gives vector of correct length", {
-#   m <- modest(X,Y,"SL",
-#               ensemble = c("SL.Lasso","SL.Ridge","SL.RF",
-#                            "SL.CIF","SL.XGB","SL.CB"))
-#   expect_no_error(FV1 <- FVest(m,X,Y,X[1:5,],Y[1:5],ML = "SL"))
-#   expect_no_error(FV2 <- FVest(m,X,Y,ML = "SL"))
-#   expect_length(FV1, 5)
-#   expect_length(FV2, nrow(X))
-# })
+test_that("SL has no error and gives vector of correct length", {
+  m <- modest(X,Y,"SL",
+              ensemble = c("SL.Lasso","SL.Ridge","SL.RF",
+                           "SL.CIF","SL.XGB","SL.CB"))
+  expect_no_error(FV1 <- FVest(m,X,Y,X[1:5,],Y[1:5],ML = "SL"))
+  expect_no_error(FV2 <- FVest(m,X,Y,ML = "SL"))
+  expect_length(FV1, 5)
+  expect_length(FV2, nrow(X))
+})
 
 
