@@ -1,0 +1,34 @@
+Package: ML
+Title: Estimation of several Machine Learning models
+Version: 0.0.0.9000
+Authors@R:
+    person("Joël", "Terschuur", , "joelrt2310@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-9997-9954"))
+Description: Estimates model and predictions of Lasso, Ridge, Random
+    forest, Conditional Inference forest, Extreme Gradient Boosting, Catboosting
+    and SuperLearner.
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.1
+Depends: 
+    R (>= 2.10)
+LazyData: true
+Imports: 
+    acid,
+    data.table,
+    DescTools,
+    dplyr,
+    glmnet,
+    hyperSMURF,
+    parallel,
+    party,
+    pbapply,
+    plyr,
+    ranger,
+    stringr,
+    writexl
+Suggests: 
+    catboost,
+    xgboost
