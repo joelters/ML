@@ -37,4 +37,6 @@ m3 <- MLest(X,Y,"Lasso", FVs = FALSE)
 m4 <- MLest(X,Y,"SL",
         ensemble = c("SL.Lasso","SL.Ridge","SL.RF","SL.CIF","SL.XGB","SL.CB"))
 ```
+For more info install the package and see the documentation of the functions with
+?modest, ?FVest and ?MLest
 
