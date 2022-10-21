@@ -12,7 +12,9 @@ Encuesta de Condiciones de vida (ECV) 2019).
 You can install the development version of ML from [GitHub](https://github.com/) with:
       
 ``` r
-# install.packages("devtools")
+# install devtools if not installed
+install.packages("devtools")
+# install ML from github
 devtools::install_github("joelters/ML")
 ```
 Examples of the three functions are
