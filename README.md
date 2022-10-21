@@ -30,7 +30,7 @@ FVs1 <- FVest(m1,X,Y,X[1:5,],Y[1:5],ML = "RF")
 
 FVs2 <- FVest(m2,X,Y,ML = "SL")
 
-m3 <- MLest(X,Y,"Lasso")
+m3 <- MLest(X,Y,"Lasso", FVs = FALSE)
 
 m4 <- MLest(X,Y,"SL",
         ensemble = c("SL.Lasso","SL.Ridge","SL.RF","SL.CIF","SL.XGB","SL.CB"))
