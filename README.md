@@ -38,5 +38,7 @@ m4 <- MLest(X,Y,"SL",
         ensemble = c("SL.Lasso","SL.Ridge","SL.RF","SL.CIF","SL.XGB","SL.CB"))
 ```
 For more info install the package and see the documentation of the functions with
-?modest, ?FVest and ?MLest
+?modest, ?FVest and ?MLest. For now it is not possible to change the tuning parameters.
+For the moment I suggest using the trace() function to change the tuning parameters
+(see [here](https://stackoverflow.com/questions/34800331/r-modify-and-rebuild-package)).
 
