@@ -21,7 +21,7 @@
 #' modest(X,Y,"SL",
 #' ensemble = c("SL.Lasso","SL.Ridge","SL.RF","SL.CIF","SL.XGB","SL.CB"))
 #'
-#' @details CB treats all features as discrete. Note that the glmnet package
+#' @details Note that the glmnet package
 #' which implements Lasso and Ridge does not handle factor variables
 #' (such as the ones in mad2019), hence for this machine learners,
 #' modest turns X into model.matrix(~.,X) which will perform dummy
