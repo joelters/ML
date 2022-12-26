@@ -88,9 +88,11 @@ FVest <- function(model,
       )
     }
     #Again label should not have any use here
+    # CB.data <- catboost::catboost.load_pool(Xnew,
+    #                               label = rep(0,nrow(Xnew)),
+    #                               cat_features = c(1:ncol(Xnew)))
     CB.data <- catboost::catboost.load_pool(Xnew,
-                                  label = rep(0,nrow(Xnew)),
-                                  cat_features = c(1:ncol(Xnew)))
+                                            label = rep(0,nrow(Xnew)))
     FVs <- catboost::catboost.predict(model,CB.data)
   }
   else if (ML == "SL"){

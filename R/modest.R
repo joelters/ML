@@ -96,10 +96,13 @@ modest <- function(X,
         call. = FALSE
       )
     }
+    # CB.data <- catboost::catboost.load_pool(X,
+    #                               label = Y,
+    #                               cat_features = c(1:ncol(X)),
+    #                               weight = weights)
     CB.data <- catboost::catboost.load_pool(X,
-                                  label = Y,
-                                  cat_features = c(1:ncol(X)),
-                                  weight = weights)
+                                            label = Y,
+                                            weight = weights)
     model <- catboost::catboost.train(CB.data,
                             params = list(iterations = 500,
                                           logging_level = 'Silent'))
