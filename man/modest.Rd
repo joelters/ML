@@ -34,7 +34,7 @@ Inference Forest, Extreme Gradient Boosting, Catboosting or any
 combination of these using the SuperLearner package
 }
 \details{
-CB treats all features as discrete. Note that the glmnet package
+Note that the glmnet package
 which implements Lasso and Ridge does not handle factor variables
 (such as the ones in mad2019), hence for this machine learners,
 modest turns X into model.matrix(~.,X) which will perform dummy
