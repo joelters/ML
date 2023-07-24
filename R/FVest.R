@@ -48,6 +48,7 @@ FVest <- function(model,
   #note that Y in dta is not used for anything so we just want it
   #to be consistent in the dimensions
   dta <- dplyr::as_tibble(cbind(Y = rep(0,nrow(Xnew)),Xnew))
+  colnames(dta)[1] <- "Y"
   if (ML == "Lasso"){
     lstar <- model$lambda.min
     FVs = stats::predict(model,stats::model.matrix(~.,Xnew),s = lstar)

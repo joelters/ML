@@ -34,6 +34,7 @@ modest <- function(X,
                    weights = NULL){
   ML = match.arg(ML)
   dta <- dplyr::as_tibble(cbind(Y = Y,X))
+  colnames(dta)[1] <- "Y"
   if (ML == "SL"){
     if (!requireNamespace("SuperLearner", quietly = TRUE)) {
       stop(
