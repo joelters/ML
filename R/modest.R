@@ -51,12 +51,12 @@ modest <- function(X,
 
   else if (ML == "Lasso"){
     # XX <- model.matrix(Y ~., dta)
-    model <- glmnet::cv.glmnet(stats::model.matrix(~.,X),Y,alpha = 1, weights = weights)
+    model <- glmnet::cv.glmnet(stats::model.matrix(~.,X),as.matrix(Y),alpha = 1, weights = weights)
   }
 
   else if (ML == "Ridge"){
     # XX <- model.matrix(Y ~., dta)
-    model <- glmnet::cv.glmnet(stats::model.matrix(~.,X),Y,alpha = 0, weights = weights)
+    model <- glmnet::cv.glmnet(stats::model.matrix(~.,X),as.matrix(Y),alpha = 0, weights = weights)
   }
 
   else if (ML == "RF"){
