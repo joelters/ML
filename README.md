@@ -1,6 +1,6 @@
 The goal of ML is to provide a simple to use package to estimate Lasso, Ridge, Random Forest (RF),
-Conditional Inference Forest (CIF), Extreme Gradient Boosting (XGB), Catboosting (CB) and 
-a SuperLearner combining all of these learners. The package has three user functions: modest,
+Conditional Inference Forest (CIF), Extreme Gradient Boosting (XGB), Catboosting (CB),
+Logit lasso and a SuperLearner combining all of these learners. The package has three user functions: modest,
 FVest and MLest. modest estimates only the model of the chosen Machine Learner. FVest takes
 a model and gives the predicted fitted values for new features of choice. MLest combines both 
 functions but only computes fitted values of the same observations used to build the model.
