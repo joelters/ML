@@ -51,7 +51,8 @@ FVest <- function(model,
   colnames(dta)[1] <- "Y"
   if (ML == "Lasso" | ML == "Logit_lasso"){
     lstar <- model$lambda.min
-    FVs = stats::predict(model,stats::model.matrix(~.,Xnew),s = lstar)
+    FVs = stats::predict(model,stats::model.matrix(~.,Xnew),
+                         type = "response", s = lstar)
   }
 
   else if (ML == "Ridge"){
