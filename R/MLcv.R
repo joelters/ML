@@ -2,7 +2,7 @@
 #'
 #' `MLcv` computes cross-validated RMSE for a list including up to
 #' Lasso, Ridge,
-#' Random Forest, Conditional Inference Forest,
+#' Random Forest, Conditional Inference Forest, Logit lasso,
 #' Extreme Gradient Boosting and Catboosting. Returns ML with minimum
 #' RMSE and the RMSE.
 #'
@@ -18,7 +18,7 @@
 #' @export
 MLcv <- function(X,
                  Y,
-                 ML = c("Lasso","Ridge","RF","CIF","XGB","CB"),
+                 ML = c("Lasso","Ridge","RF","CIF","XGB","CB","Logit_lasso"),
                  Kcv = 5){
   n <- length(Y)
   X <- dplyr::as_tibble(X)

@@ -2,7 +2,7 @@
 #'
 #' `MLest` estimates a machine learning model (Lasso, Ridge,
 #' Random Forest, Conditional Inference Forest,
-#' Extreme Gradient Boosting, Catboosting or any
+#' Extreme Gradient Boosting, Catboosting, Logit lasso or any
 #' combination of these using the SuperLearner package) and (optionally)
 #' returns the predicted fitted values.
 #'
@@ -32,7 +32,7 @@
 #' @export
 MLest <- function(X,
                   Y,
-                  ML = c("Lasso","Ridge","RF","CIF","XGB","CB","SL"),
+                  ML = c("Lasso","Ridge","RF","CIF","XGB","CB","Logit_lasso", "SL"),
                   ensemble = c("SL.Lasso","SL.Ridge","SL.RF","SL.CIF","SL.XGB","SL.CB"),
                   FVs = TRUE,
                   weights = NULL){

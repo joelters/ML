@@ -6,6 +6,11 @@ SL.Lasso <- function (Y,X,newX,...) {
   SuperLearner::SL.glmnet(Y,X,newX,...)
 }
 
+SL.Logit_lasso <- function (Y,X,newX,...) {
+  X <- stats::model.matrix(~.,X)
+  newX <- stats::model.matrix(~.,newX)
+  SuperLearner::SL.glmnet(Y,X, family = "binomial", newX,...)
+}
 
 SL.Ridge <- function (Y,X,newX,...) {
   X <- stats::model.matrix(~.,X)

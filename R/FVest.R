@@ -2,7 +2,7 @@
 #'
 #' `FVest` takes an estimated machine learning model (Lasso, Ridge,
 #' Random Forest, Conditional Inference Forest,
-#' Extreme Gradient Boosting, Catboosting or any
+#' Extreme Gradient Boosting, Catboosting, Logit lasso or any
 #' combination of these using the SuperLearner package) and returns
 #' the predicted fitted values for Xnew.
 #'
@@ -43,13 +43,13 @@ FVest <- function(model,
                   Y,
                   Xnew = X,
                   Ynew = Y,
-                  ML = c("Lasso","Ridge","RF","CIF","XGB","CB","SL")){
+                  ML = c("Lasso","Ridge","RF","CIF","XGB","CB","Logit_lasso","SL")){
   ML = match.arg(ML)
   #note that Y in dta is not used for anything so we just want it
   #to be consistent in the dimensions
   dta <- dplyr::as_tibble(cbind(Y = rep(0,nrow(Xnew)),Xnew))
   colnames(dta)[1] <- "Y"
-  if (ML == "Lasso"){
+  if (ML == "Lasso" | ML == "Logit_lasso"){
     lstar <- model$lambda.min
     FVs = stats::predict(model,stats::model.matrix(~.,Xnew),s = lstar)
   }

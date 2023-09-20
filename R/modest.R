@@ -2,8 +2,8 @@
 #'
 #' `modest` estimates the model for a specified machine learner,
 #'  possible options are Lasso, Ridge, Random Forest, Conditional
-#' Inference Forest, Extreme Gradient Boosting, Catboosting or any
-#' combination of these using the SuperLearner package
+#' Inference Forest, Extreme Gradient Boosting, Catboosting, Logit lasso
+#' or any combination of these using the SuperLearner package
 #'
 #' @param X is a dataframe containing all the features
 #' @param Y is a vector containing the label
@@ -29,8 +29,8 @@
 #' @export
 modest <- function(X,
                    Y,
-                   ML = c("Lasso","Ridge","RF","CIF","XGB","CB", "SL"),
-                   ensemble = c("SL.Lasso","SL.Ridge","SL.RF","SL.CIF","SL.XGB","SL.CB"),
+                   ML = c("Lasso","Ridge","RF","CIF","XGB","CB","Logit_lasso","SL"),
+                   ensemble = c("SL.Lasso","SL.Ridge","SL.RF","SL.CIF","SL.XGB","SL.Logit_lasso","SL.CB"),
                    weights = NULL){
   ML = match.arg(ML)
   dta <- dplyr::as_tibble(cbind(Y = Y,X))
@@ -52,6 +52,12 @@ modest <- function(X,
   else if (ML == "Lasso"){
     # XX <- model.matrix(Y ~., dta)
     model <- glmnet::cv.glmnet(stats::model.matrix(~.,X),as.matrix(Y),alpha = 1, weights = weights)
+  }
+
+  else if (ML == "Logit_lasso"){
+    # XX <- model.matrix(Y ~., dta)
+    model <- glmnet::cv.glmnet(stats::model.matrix(~.,X),as.matrix(Y), family = "binomial",
+                               alpha = 1, weights = weights)
   }
 
   else if (ML == "Ridge"){
