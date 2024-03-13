@@ -19,14 +19,18 @@
 MLcv <- function(X,
                  Y,
                  ML = c("Lasso","Ridge","RF","CIF","XGB","CB","Logit_lasso"),
-                 Kcv = 5){
+                 Kcv = 5,
+                 rf.cf.ntree = 500,
+                 rf.depth = NULL){
   n <- length(Y)
   X <- dplyr::as_tibble(X)
   ind <- split(seq(n), seq(n) %% Kcv)
   fv <- rep(0,n)
   res <- lapply(ML,function(u){
     for (i in 1:Kcv){
-      m <- ML::modest(X[-ind[[i]],],Y[-ind[[i]]],ML = u)
+      m <- ML::modest(X[-ind[[i]],],Y[-ind[[i]]],ML = u,
+                      rf.cf.ntree = rf.cf.ntree,
+                      rf.depth = rf.depth)
       fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
                                  X[ind[[i]],],Y[ind[[i]]],ML = u)
     }

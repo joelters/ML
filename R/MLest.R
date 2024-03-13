@@ -34,6 +34,8 @@ MLest <- function(X,
                   Y,
                   ML = c("Lasso","Ridge","RF","CIF","XGB","CB","Logit_lasso", "SL"),
                   ensemble = c("SL.Lasso","SL.Ridge","SL.RF","SL.CIF","SL.XGB","SL.CB"),
+                  rf.cf.ntree = 500,
+                  rf.depth = NULL,
                   FVs = TRUE,
                   weights = NULL){
   ML = match.arg(ML)
@@ -56,7 +58,8 @@ MLest <- function(X,
   }
   else{
     #Estimate model
-    m <- modest(X, Y, ML, weights = weights)
+    m <- modest(X, Y, ML, weights = weights, rf.cf.ntree = rf.cf.ntree,
+                rf.depth = rf.depth)
     #Fitted values
     if (FVs == TRUE){
       FVs <- FVest(m, X, Y, X, Y, ML)

@@ -31,6 +31,8 @@ modest <- function(X,
                    Y,
                    ML = c("Lasso","Ridge","RF","CIF","XGB","CB","Logit_lasso","SL"),
                    ensemble = c("SL.Lasso","SL.Ridge","SL.RF","SL.CIF","SL.XGB","SL.Logit_lasso","SL.CB"),
+                   rf.cf.ntree = 500,
+                   rf.depth = NULL,
                    weights = NULL){
   ML = match.arg(ML)
   dta <- dplyr::as_tibble(cbind(Y = Y,X))
@@ -69,6 +71,8 @@ modest <- function(X,
     model <- ranger::ranger(Y ~ .,
                     data = dta,
                     mtry = max(floor(ncol(X)/3), 1),
+                    num.trees = rf.cf.ntree,
+                    max.depth = rf.depth,
                     case.weights = weights,
                     respect.unordered.factors = 'partition')
   }
@@ -76,7 +80,8 @@ modest <- function(X,
   else if (ML == "CIF"){
     model <- party::cforest(Y ~ .,
                      data = dta,
-                     controls = party::cforest_unbiased(mtry = max(floor(ncol(X)/3), 1)),
+                     controls = party::cforest_unbiased(mtry = max(floor(ncol(X)/3), 1),
+                                                        ntree = rf.cf.ntree),
                      weights = weights)
   }
 
