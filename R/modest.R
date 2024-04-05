@@ -45,6 +45,10 @@ modest <- function(X,
   dta <- dplyr::as_tibble(cbind(Y = Y,X))
   colnames(dta)[1] <- "Y"
 
+  if (class(X) != "data.frame"){
+    X <- data.frame(X)
+  }
+
   if (ML == "Lasso" | ML == "Ridge" | ML == "Logit_lasso"){
     if (polynomial == 1){
       MM <- stats::model.matrix(~(.), X)

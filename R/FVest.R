@@ -50,10 +50,18 @@ FVest <- function(model,
                   ML = c("Lasso","Ridge","RF","CIF","XGB","CB","Logit_lasso","SL"),
                   polynomial = 1){
   ML = match.arg(ML)
+
+  if (class(X) != "data.frame"){
+    X <- data.frame(X)
+  }
+  if (class(Xnew) != "data.frame"){
+    Xnew <- data.frame(Xnew)
+  }
   #note that Y in dta is not used for anything so we just want it
   #to be consistent in the dimensions
   dta <- dplyr::as_tibble(cbind(Y = rep(0,nrow(Xnew)),Xnew))
   colnames(dta)[1] <- "Y"
+
 
   if (ML == "Lasso" | ML == "Ridge" | ML == "Logit_lasso"){
     if (polynomial == 1){
