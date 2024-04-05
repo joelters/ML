@@ -66,10 +66,11 @@ MLest <- function(X,
   else{
     #Estimate model
     m <- modest(X, Y, ML, weights = weights, rf.cf.ntree = rf.cf.ntree,
-                rf.depth = rf.depth)
+                rf.depth = rf.depth,
+                polynomial = polynomial)
     #Fitted values
     if (FVs == TRUE){
-      FVs <- FVest(m, X, Y, X, Y, ML)
+      FVs <- FVest(m, X, Y, X, Y, ML, polynomial = polynomial)
       return(list("model" = m, "FVs" = FVs))
     }
     else{

@@ -49,7 +49,7 @@ modest <- function(X,
     if (polynomial == 1){
       MM <- stats::model.matrix(~(.), X)
     }
-    else if (polynomial > 2){
+    else if (polynomial >= 2){
       M <- stats::model.matrix(~(.), X)
       M <- M[,2:ncol(M)]
       Mnon01 <- colnames(M)[!apply(M,2,function(u){all(u %in% 0:1)})]

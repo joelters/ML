@@ -59,7 +59,7 @@ FVest <- function(model,
     if (polynomial == 1){
       MM <- stats::model.matrix(~(.), Xnew)
     }
-    else if (polynomial > 2){
+    else if (polynomial >= 2){
       M <- stats::model.matrix(~(.), Xnew)
       M <- M[,2:ncol(M)]
       Mnon01 <- colnames(M)[!apply(M,2,function(u){all(u %in% 0:1)})]

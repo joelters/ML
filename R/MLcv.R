@@ -30,9 +30,11 @@ MLcv <- function(X,
     for (i in 1:Kcv){
       m <- ML::modest(X[-ind[[i]],],Y[-ind[[i]]],ML = u,
                       rf.cf.ntree = rf.cf.ntree,
-                      rf.depth = rf.depth)
+                      rf.depth = rf.depth,
+                      polynomial = polynomial)
       fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
-                                 X[ind[[i]],],Y[ind[[i]]],ML = u)
+                                 X[ind[[i]],],Y[ind[[i]]],ML = u,
+                                polynomial = polynomial)
     }
     rmse <- sqrt(mean((Y-fv)^2))
   })
