@@ -102,7 +102,7 @@ FVest <- function(model,
   }
 
   else if (ML == "RF"){
-    FVs <- stats::predict(model,Xnew)
+    FVs <- stats::predict(model,data.frame(X = Xnew[,]))
     FVs <- FVs$predictions
   }
 
