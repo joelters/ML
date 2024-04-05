@@ -10,7 +10,8 @@ FVest(
   Y,
   Xnew = X,
   Ynew = Y,
-  ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "SL")
+  ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Logit_lasso", "SL"),
+  polynomial = 1
 )
 }
 \arguments{
@@ -31,6 +32,11 @@ rows of Xnew. It only matters that it has correct length so one
 could use a vectors of zeros.}
 
 \item{ML}{is a string specifying which machine learner to use}
+
+\item{polynomial}{degree of polynomial to be fitted when using Lasso, Ridge
+or Logit Lasso. 1 just fits the input X. 2 squares all variables and adds
+all pairwise interactions. 3 squares and cubes all variables and adds all
+pairwise and threewise interactions...}
 }
 \value{
 vector with fitted values
@@ -38,7 +44,7 @@ vector with fitted values
 \description{
 \code{FVest} takes an estimated machine learning model (Lasso, Ridge,
 Random Forest, Conditional Inference Forest,
-Extreme Gradient Boosting, Catboosting or any
+Extreme Gradient Boosting, Catboosting, Logit lasso or any
 combination of these using the SuperLearner package) and returns
 the predicted fitted values for Xnew.
 }

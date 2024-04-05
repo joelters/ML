@@ -10,6 +10,12 @@
 #' @param ML is a string specifying which machine learner to use
 #' @param ensemble is a string vector specifying which learners
 #' to combine in the SuperLearner. Only needed if ML = "SL".
+#' @param rf.cf.ntree how many trees should be grown when using RF or CIF
+#' @param rf.depth how deep should trees be grown in RF (NULL is default from ranger)
+#' @param polynomial degree of polynomial to be fitted when using Lasso, Ridge
+#' or Logit Lasso. 1 just fits the input X. 2 squares all variables and adds
+#' all pairwise interactions. 3 squares and cubes all variables and adds all
+#' pairwise and threewise interactions...
 #' @param weights is a vector containing survey weights adding up to 1
 #' @returns the object that the machine learner package returns
 #' @examples
@@ -33,10 +39,39 @@ modest <- function(X,
                    ensemble = c("SL.Lasso","SL.Ridge","SL.RF","SL.CIF","SL.XGB","SL.Logit_lasso","SL.CB"),
                    rf.cf.ntree = 500,
                    rf.depth = NULL,
+                   polynomial = 1,
                    weights = NULL){
   ML = match.arg(ML)
   dta <- dplyr::as_tibble(cbind(Y = Y,X))
   colnames(dta)[1] <- "Y"
+
+  if (ML == "Lasso" | ML == "Ridge" | ML == "Logit_lasso"){
+    if (polynomial == 1){
+      MM <- stats::model.matrix(~(.), X)
+    }
+    else if (polynomial > 2){
+      M <- stats::model.matrix(~(.), X)
+      M <- M[,2:ncol(M)]
+      Mnon01 <- colnames(M)[!apply(M,2,function(u){all(u %in% 0:1)})]
+      if (length(Mnon01) != 0){
+        A <- lapply(2:polynomial, function(u){
+          B <- M[,Mnon01]^u
+        })
+        A <- do.call(cbind,A)
+        colnames(A) <- c(sapply(2:polynomial, function(u){paste(Mnon01,"tothe",u,sep = "")}))
+      }
+      else{
+        A <- NULL
+      }
+      fml<- as.formula(paste("~(.)^",polynomial,sep=""))
+      MM <- cbind(stats::model.matrix(fml,X),A)
+    }
+    else{
+      stop("polynomial has to be an integer larger or equal than 1")
+    }
+    X <- MM[,2:ncol(MM)]
+  }
+
   if (ML == "SL"){
     if (!requireNamespace("SuperLearner", quietly = TRUE)) {
       stop(
@@ -53,18 +88,18 @@ modest <- function(X,
 
   else if (ML == "Lasso"){
     # XX <- model.matrix(Y ~., dta)
-    model <- glmnet::cv.glmnet(stats::model.matrix(~.,X),as.matrix(Y),alpha = 1, weights = weights)
+    model <- glmnet::cv.glmnet(X,as.matrix(Y),alpha = 1, weights = weights)
   }
 
   else if (ML == "Logit_lasso"){
     # XX <- model.matrix(Y ~., dta)
-    model <- glmnet::cv.glmnet(stats::model.matrix(~.,X),as.matrix(Y), family = "binomial",
+    model <- glmnet::cv.glmnet(X,as.matrix(Y), family = "binomial",
                                alpha = 1, weights = weights)
   }
 
   else if (ML == "Ridge"){
     # XX <- model.matrix(Y ~., dta)
-    model <- glmnet::cv.glmnet(stats::model.matrix(~.,X),as.matrix(Y),alpha = 0, weights = weights)
+    model <- glmnet::cv.glmnet(X,as.matrix(Y),alpha = 0, weights = weights)
   }
 
   else if (ML == "RF"){

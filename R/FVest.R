@@ -18,6 +18,10 @@
 #' rows of Xnew. It only matters that it has correct length so one
 #' could use a vectors of zeros.
 #' @param ML is a string specifying which machine learner to use
+#' @param polynomial degree of polynomial to be fitted when using Lasso, Ridge
+#' or Logit Lasso. 1 just fits the input X. 2 squares all variables and adds
+#' all pairwise interactions. 3 squares and cubes all variables and adds all
+#' pairwise and threewise interactions...
 #' @returns vector with fitted values
 #' @examples
 #' X <- dplyr::select(mad2019,-Y)
@@ -43,21 +47,50 @@ FVest <- function(model,
                   Y,
                   Xnew = X,
                   Ynew = Y,
-                  ML = c("Lasso","Ridge","RF","CIF","XGB","CB","Logit_lasso","SL")){
+                  ML = c("Lasso","Ridge","RF","CIF","XGB","CB","Logit_lasso","SL"),
+                  polynomial = 1){
   ML = match.arg(ML)
   #note that Y in dta is not used for anything so we just want it
   #to be consistent in the dimensions
   dta <- dplyr::as_tibble(cbind(Y = rep(0,nrow(Xnew)),Xnew))
   colnames(dta)[1] <- "Y"
+
+  if (ML == "Lasso" | ML == "Ridge" | ML == "Logit_lasso"){
+    if (polynomial == 1){
+      MM <- stats::model.matrix(~(.), Xnew)
+    }
+    else if (polynomial > 2){
+      M <- stats::model.matrix(~(.), Xnew)
+      M <- M[,2:ncol(M)]
+      Mnon01 <- colnames(M)[!apply(M,2,function(u){all(u %in% 0:1)})]
+      if (length(Mnon01) != 0){
+        A <- lapply(2:polynomial, function(u){
+          B <- M[,Mnon01]^u
+        })
+        A <- do.call(cbind,A)
+        colnames(A) <- c(sapply(2:polynomial, function(u){paste(Mnon01,"tothe",u,sep = "")}))
+      }
+      else{
+        A <- NULL
+      }
+      fml<- as.formula(paste("~(.)^",polynomial,sep=""))
+      MM <- cbind(stats::model.matrix(fml,Xnew),A)
+    }
+    else{
+      stop("polynomial has to be an integer larger or equal than 1")
+    }
+    Xnew <- MM[,2:ncol(MM)]
+  }
+
   if (ML == "Lasso" | ML == "Logit_lasso"){
     lstar <- model$lambda.min
-    FVs = stats::predict(model,stats::model.matrix(~.,Xnew),
+    FVs = stats::predict(model,Xnew,
                          type = "response", s = lstar)
   }
 
   else if (ML == "Ridge"){
     lstar <- model$lambda.min
-    FVs = stats::predict(model,stats::model.matrix(~.,Xnew),s = lstar)
+    FVs = stats::predict(model, Xnew, s = lstar)
   }
 
   else if (ML == "RF"){

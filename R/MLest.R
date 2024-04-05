@@ -13,6 +13,12 @@
 #' @param ML is a string specifying which machine learner to use
 #' @param ensemble is a string vector specifying which learners
 #' should be used in the SuperLearner
+#' @param rf.cf.ntree how many trees should be grown when using RF or CIF
+#' @param rf.depth how deep should trees be grown in RF (NULL is default from ranger)
+#' @param polynomial degree of polynomial to be fitted when using Lasso, Ridge
+#' or Logit Lasso. 1 just fits the input X. 2 squares all variables and adds
+#' all pairwise interactions. 3 squares and cubes all variables and adds all
+#' pairwise and threewise interactions...
 #' @param FVs a logical indicating whether FVs should be computed
 #' @param weights survey weights adding up to 1
 #' @returns list containing model and fitted values
@@ -36,6 +42,7 @@ MLest <- function(X,
                   ensemble = c("SL.Lasso","SL.Ridge","SL.RF","SL.CIF","SL.XGB","SL.CB"),
                   rf.cf.ntree = 500,
                   rf.depth = NULL,
+                  polynomial = 1,
                   FVs = TRUE,
                   weights = NULL){
   ML = match.arg(ML)
