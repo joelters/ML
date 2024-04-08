@@ -113,7 +113,7 @@ FVest <- function(model,
 
   else if (ML == "RF"){
     if (length(model$forest$independent.variable.names) == length(names(Xnew))){
-      if (model$forest$independent.variable.names != names(Xnew)){
+      if (!all(model$forest$independent.variable.names == names(Xnew))){
         names(Xnew) = model$forest$independent.variable.names
       }
     }
@@ -138,7 +138,7 @@ FVest <- function(model,
       )
     }
     if (length(model$feature_names) == length(names(Xnew))){
-      if (model$feature_names != names(Xnew)){
+      if (!all(model$feature_names == names(Xnew))){
         names(Xnew) = model$feature_names
       }
     }
