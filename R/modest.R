@@ -74,10 +74,10 @@ modest <- function(X,
       stop("polynomial has to be an integer larger or equal than 1")
     }
     if (ncol(MM) > 2){
-      Xnew <- as.matrix(MM[,2:ncol(MM)])
+      X <- as.matrix(MM[,2:ncol(MM)])
     }
     else{
-      Xnew <- MM
+      X <- MM
     }
   }
 
