@@ -45,7 +45,7 @@ modest <- function(X,
   dta <- dplyr::as_tibble(cbind(Y = Y,X))
   colnames(dta)[1] <- "Y"
 
-  if (class(X) != "data.frame"){
+  if (!("data.frame" %in% class(X))){
     X <- data.frame(X)
   }
 
