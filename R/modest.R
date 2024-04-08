@@ -55,7 +55,11 @@ modest <- function(X,
     }
     else if (polynomial >= 2){
       M <- stats::model.matrix(~(.), X)
-      M <- M[,2:ncol(M)]
+      M2 <- as.matrix(M[,2:ncol(M)])
+      if (ncol(M) == 2){
+        colnames(M2) <- colnames(M)[2]
+      }
+      M <- M2
       Mnon01 <- colnames(M)[!apply(M,2,function(u){all(u %in% 0:1)})]
       if (length(Mnon01) != 0){
         A <- lapply(2:polynomial, function(u){
