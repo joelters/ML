@@ -10,7 +10,7 @@ FVest(
   Y,
   Xnew = X,
   Ynew = Y,
-  ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Logit_lasso", "SL"),
+  ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Logit_lasso", "OLS", "SL"),
   polynomial = 1
 )
 }

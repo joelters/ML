@@ -7,7 +7,7 @@
 MLcv(
   X,
   Y,
-  ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Logit_lasso"),
+  ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Logit_lasso", "OLS"),
   Kcv = 5,
   rf.cf.ntree = 500,
   rf.depth = NULL

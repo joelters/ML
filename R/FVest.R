@@ -47,7 +47,7 @@ FVest <- function(model,
                   Y,
                   Xnew = X,
                   Ynew = Y,
-                  ML = c("Lasso","Ridge","RF","CIF","XGB","CB","Logit_lasso","SL"),
+                  ML = c("Lasso","Ridge","RF","CIF","XGB","CB","Logit_lasso","OLS","SL"),
                   polynomial = 1){
   ML = match.arg(ML)
   Ynew <- as.numeric(Ynew)
@@ -65,7 +65,7 @@ FVest <- function(model,
   colnames(dta)[1] <- "Y"
 
 
-  if (ML == "Lasso" | ML == "Ridge" | ML == "Logit_lasso"){
+  if (ML == "Lasso" | ML == "Ridge" | ML == "Logit_lasso" | ML == "OLS"){
     if (polynomial == 1){
       MM <- stats::model.matrix(~(.), Xnew)
     }
@@ -110,6 +110,10 @@ FVest <- function(model,
   else if (ML == "Ridge"){
     lstar <- model$lambda.min
     FVs = stats::predict(model, Xnew, s = lstar)
+  }
+
+  else if (ML == "OLS"){
+    FVs = stats::predict(model, data.frame(Xnew))
   }
 
   else if (ML == "RF"){
