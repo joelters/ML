@@ -87,7 +87,12 @@ FVest <- function(model,
     else{
       stop("polynomial has to be an integer larger or equal than 1")
     }
-    Xnew <- as.matrix(MM[,2:ncol(MM)])
+    if (ncol(MM) > 2){
+      Xnew <- as.matrix(MM[,2:ncol(MM)])
+    }
+    else{
+      Xnew <- MM
+    }
   }
 
   if (ML == "Lasso" | ML == "Logit_lasso"){
