@@ -50,6 +50,7 @@ FVest <- function(model,
                   ML = c("Lasso","Ridge","RF","CIF","XGB","CB","Logit_lasso","SL"),
                   polynomial = 1){
   ML = match.arg(ML)
+  Ynew <- as.numeric(Ynew)
 
   if (!("data.frame" %in% class(X))){
     X <- data.frame(X)

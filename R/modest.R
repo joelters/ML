@@ -41,6 +41,7 @@ modest <- function(X,
                    rf.depth = NULL,
                    polynomial = 1,
                    weights = NULL){
+  Y <- as.numeric(Y)
   ML = match.arg(ML)
   dta <- dplyr::as_tibble(cbind(Y = Y,X))
   colnames(dta)[1] <- "Y"
