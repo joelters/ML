@@ -87,7 +87,7 @@ FVest <- function(model,
     else{
       stop("polynomial has to be an integer larger or equal than 1")
     }
-    Xnew <- MM[,2:ncol(MM)]
+    Xnew <- as.matrix(MM[,2:ncol(MM)])
   }
 
   if (ML == "Lasso" | ML == "Logit_lasso"){
@@ -102,7 +102,7 @@ FVest <- function(model,
   }
 
   else if (ML == "RF"){
-    FVs <- stats::predict(model,data.frame(X = Xnew[,]))
+    FVs <- stats::predict(model,Xnew)
     FVs <- FVs$predictions
   }
 

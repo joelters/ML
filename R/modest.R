@@ -73,7 +73,7 @@ modest <- function(X,
     else{
       stop("polynomial has to be an integer larger or equal than 1")
     }
-    X <- MM[,2:ncol(MM)]
+    X <- as.matrix(MM[,2:ncol(MM)])
   }
 
   if (ML == "SL"){
