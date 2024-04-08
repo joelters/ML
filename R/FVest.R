@@ -57,15 +57,6 @@ FVest <- function(model,
   if (!("data.frame" %in% class(Xnew))){
     Xnew <- data.frame(Xnew)
   }
-  if (length(model$forest$independent.variable.names) == length(names(Xnew))){
-    if (model$forest$independent.variable.names != names(Xnew)){
-      names(Xnew) = model$forest$independent.variable.names
-    }
-  }
-  else{
-    stop("Model was trained on a different number of features than the ones acting
-         as input for prediction.")
-  }
 
   #note that Y in dta is not used for anything so we just want it
   #to be consistent in the dimensions
@@ -117,6 +108,16 @@ FVest <- function(model,
   }
 
   else if (ML == "RF"){
+    if (length(model$forest$independent.variable.names) == length(names(Xnew))){
+      if (model$forest$independent.variable.names != names(Xnew)){
+        names(Xnew) = model$forest$independent.variable.names
+      }
+    }
+    else{
+      stop("Model was trained on a different number of features than the ones acting
+         as input for prediction.")
+    }
+
     FVs <- stats::predict(model,Xnew)
     FVs <- FVs$predictions
   }
