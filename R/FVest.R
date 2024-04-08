@@ -137,6 +137,16 @@ FVest <- function(model,
         call. = FALSE
       )
     }
+    if (length(model$feature_names) == length(names(Xnew))){
+      if (model$feature_names != names(Xnew)){
+        names(Xnew) = model$feature_names
+      }
+    }
+    else{
+      stop("Model was trained on a different number of features than the ones acting
+         as input for prediction.")
+    }
+
     #Again label should not have any use here
     xgb_data = xgboost::xgb.DMatrix(data = data.matrix(Xnew), label = rep(0,nrow(Xnew)))
     FVs = stats::predict(model, xgb_data)
