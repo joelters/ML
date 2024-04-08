@@ -57,6 +57,11 @@ FVest <- function(model,
   if (class(Xnew) != "data.frame"){
     Xnew <- data.frame(Xnew)
   }
+  if (names(X) != names(Xnew)){
+    warning("Variable names in X and Xnew do not coincide, the names of
+            Xnew have been set to those of X")
+    names(Xnew) = names(X)
+  }
   #note that Y in dta is not used for anything so we just want it
   #to be consistent in the dimensions
   dta <- dplyr::as_tibble(cbind(Y = rep(0,nrow(Xnew)),Xnew))
