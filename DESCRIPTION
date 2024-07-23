@@ -17,6 +17,7 @@ LazyData: true
 Imports: 
     dplyr,
     glmnet,
+    grf,
     party,
     ranger,
     stats,
