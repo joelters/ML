@@ -35,7 +35,7 @@
 #' @export
 modest <- function(X,
                    Y,
-                   ML = c("Lasso","Ridge","RF","CIF","XGB","CB","Logit_lasso","OLS","SL"),
+                   ML = c("Lasso","Ridge","RF","CIF","XGB","CB","Logit_lasso","OLS","grf","SL"),
                    ensemble = c("SL.Lasso","SL.Ridge","SL.RF","SL.CIF","SL.XGB","SL.Logit_lasso","SL.CB"),
                    rf.cf.ntree = 500,
                    rf.depth = NULL,
@@ -173,5 +173,10 @@ modest <- function(X,
                             params = list(iterations = 500,
                                           logging_level = 'Silent'))
   }
+
+  else if (ML == "grf"){
+    model <- grf::regression_forest(X = X, Y = Y, sample.weights = weights)
+  }
+
   return(model)
 }
