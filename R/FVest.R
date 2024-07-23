@@ -175,7 +175,7 @@ FVest <- function(model,
   }
 
   else if (ML == "grf"){
-    FVs = grf::predict(model, newdata = Xnew)$predictions
+    FVs = stats::predict(model, newdata = Xnew)$predictions
   }
 
   else if (ML == "SL"){
