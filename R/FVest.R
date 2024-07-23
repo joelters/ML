@@ -47,7 +47,7 @@ FVest <- function(model,
                   Y,
                   Xnew = X,
                   Ynew = Y,
-                  ML = c("Lasso","Ridge","RF","CIF","XGB","CB","Logit_lasso","OLS","SL"),
+                  ML = c("Lasso","Ridge","RF","CIF","XGB","CB","Logit_lasso","OLS","grf","SL"),
                   polynomial = 1){
   ML = match.arg(ML)
   Ynew <- as.numeric(Ynew)
@@ -173,6 +173,11 @@ FVest <- function(model,
                                             label = rep(0,nrow(Xnew)))
     FVs <- catboost::catboost.predict(model,CB.data)
   }
+
+  else if (ML == "grf"){
+    FVs = grf::predict(model, newdata = Xnew)$predictions
+  }
+
   else if (ML == "SL"){
     if (!requireNamespace("SuperLearner", quietly = TRUE)) {
       stop(
