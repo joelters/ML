@@ -10,8 +10,10 @@ FVest(
   Y,
   Xnew = X,
   Ynew = Y,
-  ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Logit_lasso", "OLS", "SL"),
-  polynomial = 1
+  ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Logit_lasso", "OLS", "grf", "SL",
+    "OLSensemble"),
+  polynomial = 1,
+  coefs = NULL
 )
 }
 \arguments{
@@ -37,6 +39,8 @@ could use a vectors of zeros.}
 or Logit Lasso. 1 just fits the input X. 2 squares all variables and adds
 all pairwise interactions. 3 squares and cubes all variables and adds all
 pairwise and threewise interactions...}
+
+\item{coefs}{optimal coefficients for OLSensemble, computed in modest}
 }
 \value{
 vector with fitted values

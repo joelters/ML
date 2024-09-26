@@ -9,7 +9,7 @@
 #' @param Y is a vector containing the label
 #' @param ML is a string specifying which machine learner to use
 #' @param ensemble is a string vector specifying which learners
-#' to combine in the SuperLearner. Only needed if ML = "SL".
+#' should be used in ensemble methods (e.g. OLSensemble, SuperLearner)
 #' @param rf.cf.ntree how many trees should be grown when using RF or CIF
 #' @param rf.depth how deep should trees be grown in RF (NULL is default from ranger)
 #' @param polynomial degree of polynomial to be fitted when using Lasso, Ridge
@@ -17,7 +17,8 @@
 #' all pairwise interactions. 3 squares and cubes all variables and adds all
 #' pairwise and threewise interactions...
 #' @param weights is a vector containing survey weights adding up to 1
-#' @returns the object that the machine learner package returns
+#' @returns the object that the machine learner package returns, in case of OLSensemble
+#' it returns the coefficients assigned to each machine learner in ensemble
 #' @examples
 #' X <- dplyr::select(mad2019,-Y)
 #' Y <- mad2019$Y
@@ -35,11 +36,13 @@
 #' @export
 modest <- function(X,
                    Y,
-                   ML = c("Lasso","Ridge","RF","CIF","XGB","CB","Logit_lasso","OLS","grf","SL"),
-                   ensemble = c("SL.Lasso","SL.Ridge","SL.RF","SL.CIF","SL.XGB","SL.Logit_lasso","SL.CB"),
+                   ML = c("Lasso","Ridge","RF","CIF","XGB","CB",
+                          "Logit_lasso","OLS","grf","SL","OLSensemble"),
+                   ensemble = c("Lasso","Ridge","RF","CIF","XGB","Logit_lasso","CB"),
                    rf.cf.ntree = 500,
                    rf.depth = NULL,
                    polynomial = 1,
+                   OLSensemblefolds = 2,
                    weights = NULL){
   Y <- as.numeric(Y)
   ML = match.arg(ML)
@@ -87,6 +90,7 @@ modest <- function(X,
   }
 
   if (ML == "SL"){
+    ensemble = paste("SL.",ensemble, sep = "")
     if (!requireNamespace("SuperLearner", quietly = TRUE)) {
       stop(
         "Package \"SuperLearner\" must be installed to use this function.",
@@ -178,5 +182,36 @@ modest <- function(X,
     model <- grf::regression_forest(X = X, Y = Y, sample.weights = weights)
   }
 
-  return(model)
+  else if(ML == "OLSensemble"){
+    n <- length(Y)
+    ind <- split(seq(n), seq(n) %% OLSensemblefolds)
+    res = sapply(ensemble, function(u){
+      pred = rep(NA,n)
+      for (ii in 1:OLSensemblefolds){
+        mm = ML::modest(X[-ind[[ii]],], Y[-ind[[ii]]], ML = u,
+                        rf.cf.ntree = rf.cf.ntree,
+                        rf.depth = rf.depth,
+                        polynomial = polynomial,
+                        weights = weights)
+
+        pred[ind[[ii]]] = ML::FVest(mm,X[-ind[[ii]],],Y[-ind[[ii]]],
+                         X[ind[[ii]],],Y[ind[[ii]]],ML = u,
+                         polynomial = polynomial)
+      }
+      pred
+    })
+    dfens = data.frame(Y = Y,res)
+    names(dfens) = c("Y",ensemble)
+    ols = lm(Y~., data = dfens)
+    coefs = ols$coefficients
+    ms = lapply(ensemble, function(u){
+      ML::modest(X, Y, ML = u,
+                 rf.cf.ntree = rf.cf.ntree,
+                 rf.depth = rf.depth,
+                 polynomial = polynomial,
+                 weights = weights)
+    })
+    names(ms) = ensemble
+    return(list(models = ms, coefs = coefs))
+  }
 }

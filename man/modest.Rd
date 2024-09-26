@@ -7,12 +7,13 @@
 modest(
   X,
   Y,
-  ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Logit_lasso", "OLS", "SL"),
-  ensemble = c("SL.Lasso", "SL.Ridge", "SL.RF", "SL.CIF", "SL.XGB", "SL.Logit_lasso",
-    "SL.CB"),
+  ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Logit_lasso", "OLS", "grf", "SL",
+    "OLSensemble"),
+  ensemble = c("Lasso", "Ridge", "RF", "CIF", "XGB", "Logit_lasso", "CB"),
   rf.cf.ntree = 500,
   rf.depth = NULL,
   polynomial = 1,
+  OLSensemblefolds = 2,
   weights = NULL
 )
 }
@@ -24,7 +25,7 @@ modest(
 \item{ML}{is a string specifying which machine learner to use}
 
 \item{ensemble}{is a string vector specifying which learners
-to combine in the SuperLearner. Only needed if ML = "SL".}
+should be used in ensemble methods (e.g. OLSensemble, SuperLearner)}
 
 \item{rf.cf.ntree}{how many trees should be grown when using RF or CIF}
 
@@ -38,7 +39,8 @@ pairwise and threewise interactions...}
 \item{weights}{is a vector containing survey weights adding up to 1}
 }
 \value{
-the object that the machine learner package returns
+the object that the machine learner package returns, in case of OLSensemble
+it returns the coefficients assigned to each machine learner in ensemble
 }
 \description{
 \code{modest} estimates the model for a specified machine learner,

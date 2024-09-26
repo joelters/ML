@@ -7,12 +7,14 @@
 MLest(
   X,
   Y,
-  ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Logit_lasso", "OLS", "SL"),
+  ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Logit_lasso", "OLS", "grf", "SL",
+    "OLSensemble"),
   ensemble = c("SL.Lasso", "SL.Ridge", "SL.RF", "SL.CIF", "SL.XGB", "SL.CB"),
   rf.cf.ntree = 500,
   rf.depth = NULL,
   polynomial = 1,
   FVs = TRUE,
+  OLSensemblefolds = 2,
   weights = NULL
 )
 }
@@ -26,7 +28,7 @@ was estimated}
 \item{ML}{is a string specifying which machine learner to use}
 
 \item{ensemble}{is a string vector specifying which learners
-should be used in the SuperLearner}
+should be used in ensemble methods (e.g. OLSensemble, SuperLearner)}
 
 \item{rf.cf.ntree}{how many trees should be grown when using RF or CIF}
 
@@ -38,6 +40,8 @@ all pairwise interactions. 3 squares and cubes all variables and adds all
 pairwise and threewise interactions...}
 
 \item{FVs}{a logical indicating whether FVs should be computed}
+
+\item{OLSensemblefolds}{number of folds to split in OLSensemble method}
 
 \item{weights}{survey weights adding up to 1}
 }

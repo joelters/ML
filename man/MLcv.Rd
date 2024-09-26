@@ -7,10 +7,15 @@
 MLcv(
   X,
   Y,
-  ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Logit_lasso", "OLS"),
+  ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Logit_lasso", "OLS", "grf",
+    "OLSensemble"),
+  ensemble = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Logit_lasso", "OLS", "grf",
+    "OLSensemble"),
   Kcv = 5,
   rf.cf.ntree = 500,
-  rf.depth = NULL
+  rf.depth = NULL,
+  OLSensemblefolds = 2,
+  polynomial = 1
 )
 }
 \arguments{
@@ -21,6 +26,9 @@ model was estimated}
 was estimated}
 
 \item{ML}{string vector specifying which machine learners to use}
+
+\item{ensemble}{is a string vector specifying which learners
+should be used in ensemble methods (e.g. OLSensemble, SuperLearner)}
 
 \item{Kcv}{number of folds}
 }

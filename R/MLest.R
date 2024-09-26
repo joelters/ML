@@ -12,7 +12,7 @@
 #' was estimated
 #' @param ML is a string specifying which machine learner to use
 #' @param ensemble is a string vector specifying which learners
-#' should be used in the SuperLearner
+#' should be used in ensemble methods (e.g. OLSensemble, SuperLearner)
 #' @param rf.cf.ntree how many trees should be grown when using RF or CIF
 #' @param rf.depth how deep should trees be grown in RF (NULL is default from ranger)
 #' @param polynomial degree of polynomial to be fitted when using Lasso, Ridge
@@ -21,6 +21,7 @@
 #' pairwise and threewise interactions...
 #' @param FVs a logical indicating whether FVs should be computed
 #' @param weights survey weights adding up to 1
+#' @param OLSensemblefolds number of folds to split in OLSensemble method
 #' @returns list containing model and fitted values
 #' @examples
 #' X <- dplyr::select(mad2019,-Y)
@@ -38,12 +39,14 @@
 #' @export
 MLest <- function(X,
                   Y,
-                  ML = c("Lasso","Ridge","RF","CIF","XGB","CB","Logit_lasso","OLS","grf","SL"),
+                  ML = c("Lasso","Ridge","RF","CIF","XGB","CB",
+                         "Logit_lasso","OLS","grf","SL","OLSensemble"),
                   ensemble = c("SL.Lasso","SL.Ridge","SL.RF","SL.CIF","SL.XGB","SL.CB"),
                   rf.cf.ntree = 500,
                   rf.depth = NULL,
                   polynomial = 1,
                   FVs = TRUE,
+                  OLSensemblefolds = 2,
                   weights = NULL){
   ML = match.arg(ML)
   X <- dplyr::as_tibble(X)
@@ -65,16 +68,22 @@ MLest <- function(X,
   }
   else{
     #Estimate model
-    m <- modest(X, Y, ML, weights = weights, rf.cf.ntree = rf.cf.ntree,
+    m <- modest(X, Y, ML, ensemble = ensemble, weights = weights,
+                rf.cf.ntree = rf.cf.ntree,
                 rf.depth = rf.depth,
-                polynomial = polynomial)
+                polynomial = polynomial,
+                OLSensemblefolds = OLSensemblefolds)
+    if (ML == "OLSensemble"){
+      coefs = m$coefs
+      m = m$models
+    } else{coefs = NULL}
     #Fitted values
     if (FVs == TRUE){
-      FVs <- FVest(m, X, Y, X, Y, ML, polynomial = polynomial)
-      return(list("model" = m, "FVs" = FVs))
+      FVs <- FVest(m, X, Y, X, Y, ML, polynomial = polynomial, coefs = coefs)
+      return(list("model" = m, "FVs" = FVs, "coefs" = coefs))
     }
     else{
-      return(list("model" = m))
+      return(list("model" = m, "coefs" = coefs))
     }
   }
 }

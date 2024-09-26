@@ -22,6 +22,7 @@
 #' or Logit Lasso. 1 just fits the input X. 2 squares all variables and adds
 #' all pairwise interactions. 3 squares and cubes all variables and adds all
 #' pairwise and threewise interactions...
+#' @param coefs optimal coefficients for OLSensemble, computed in modest
 #' @returns vector with fitted values
 #' @examples
 #' X <- dplyr::select(mad2019,-Y)
@@ -47,8 +48,10 @@ FVest <- function(model,
                   Y,
                   Xnew = X,
                   Ynew = Y,
-                  ML = c("Lasso","Ridge","RF","CIF","XGB","CB","Logit_lasso","OLS","grf","SL"),
-                  polynomial = 1){
+                  ML = c("Lasso","Ridge","RF","CIF","XGB","CB",
+                         "Logit_lasso","OLS","grf","SL","OLSensemble"),
+                  polynomial = 1,
+                  coefs = NULL){
   ML = match.arg(ML)
   Ynew <- as.numeric(Ynew)
 
@@ -201,6 +204,26 @@ FVest <- function(model,
       FVs = stats::predict(model, Xnew, onlySL = TRUE)
       FVs <- FVs$pred
     }
+  }
+
+  else if (ML == "OLSensemble"){
+    if(class(model) != "list"){
+      stop("For OLSensemble, model has to be a list of the models used for
+           the ensemble")
+    }
+    ensemble = names(model)
+    if (class(coefs) != "numeric" | length(coefs) != (length(ensemble)+1)){
+      stop("coefs has to be numeric and have the same dimension as ensemble plus 1
+           (the intercept)")
+    }
+    nnew = length(Ynew)
+    Xpred = matrix(rep(NA,nnew*length(ensemble)),nnew,length(ensemble))
+    for (ii in 1:length(ensemble)){
+      Xpred[,ii] = ML::FVest(model[[ii]], X, Y, Xnew, Ynew,
+                             ML = ensemble[ii],polynomial = polynomial)
+    }
+    Xpred = cbind(rep(1,nnew),Xpred)
+    FVs = Xpred%*%coefs
   }
   return(FVs)
 }
