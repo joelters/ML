@@ -13,7 +13,7 @@ modest(
   rf.cf.ntree = 500,
   rf.depth = NULL,
   polynomial = 1,
-  OLSensemblefolds = 2,
+  ensemblefolds = 2,
   weights = NULL
 )
 }

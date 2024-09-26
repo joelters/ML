@@ -14,7 +14,7 @@ MLest(
   rf.depth = NULL,
   polynomial = 1,
   FVs = TRUE,
-  OLSensemblefolds = 2,
+  ensemblefolds = 2,
   weights = NULL
 )
 }
@@ -41,7 +41,7 @@ pairwise and threewise interactions...}
 
 \item{FVs}{a logical indicating whether FVs should be computed}
 
-\item{OLSensemblefolds}{number of folds to split in OLSensemble method}
+\item{ensemblefolds}{number of folds to split in OLSensemble method}
 
 \item{weights}{survey weights adding up to 1}
 }

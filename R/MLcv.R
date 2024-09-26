@@ -27,7 +27,7 @@ MLcv <- function(X,
                  Kcv = 5,
                  rf.cf.ntree = 500,
                  rf.depth = NULL,
-                 OLSensemblefolds = 2,
+                 ensemblefolds = 2,
                  polynomial = 1,
                  verbose = FALSE){
   n <- length(Y)
@@ -44,7 +44,7 @@ MLcv <- function(X,
                       rf.cf.ntree = rf.cf.ntree,
                       rf.depth = rf.depth,
                       polynomial = polynomial,
-                      OLSensemblefolds = OLSensemblefolds)
+                      ensemblefolds = ensemblefolds)
       if (u == "OLSensemble"){
         coefs = m$coefs
         m = m$models

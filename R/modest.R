@@ -42,7 +42,7 @@ modest <- function(X,
                    rf.cf.ntree = 500,
                    rf.depth = NULL,
                    polynomial = 1,
-                   OLSensemblefolds = 2,
+                   ensemblefolds = 2,
                    weights = NULL){
   Y <- as.numeric(Y)
   ML = match.arg(ML)
@@ -100,7 +100,7 @@ modest <- function(X,
     #Estimate model
     model <- SuperLearner::SuperLearner(Y, X, SL.library = ensemble,
                                         family = stats::gaussian(),
-                                        cvControl = list(V = 5),
+                                        cvControl = list(V = ensemblefolds),
                                         obsWeights = weights)
   }
 
@@ -184,10 +184,10 @@ modest <- function(X,
 
   else if(ML == "OLSensemble"){
     n <- length(Y)
-    ind <- split(seq(n), seq(n) %% OLSensemblefolds)
+    ind <- split(seq(n), seq(n) %% ensemblefolds)
     res = sapply(ensemble, function(u){
       pred = rep(NA,n)
-      for (ii in 1:OLSensemblefolds){
+      for (ii in 1:ensemblefolds){
         mm = ML::modest(X[-ind[[ii]],], Y[-ind[[ii]]], ML = u,
                         rf.cf.ntree = rf.cf.ntree,
                         rf.depth = rf.depth,

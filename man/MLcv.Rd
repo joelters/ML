@@ -14,8 +14,9 @@ MLcv(
   Kcv = 5,
   rf.cf.ntree = 500,
   rf.depth = NULL,
-  OLSensemblefolds = 2,
-  polynomial = 1
+  ensemblefolds = 2,
+  polynomial = 1,
+  verbose = FALSE
 )
 }
 \arguments{

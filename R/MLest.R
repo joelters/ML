@@ -21,7 +21,7 @@
 #' pairwise and threewise interactions...
 #' @param FVs a logical indicating whether FVs should be computed
 #' @param weights survey weights adding up to 1
-#' @param OLSensemblefolds number of folds to split in OLSensemble method
+#' @param ensemblefolds number of folds to split in OLSensemble method
 #' @returns list containing model and fitted values
 #' @examples
 #' X <- dplyr::select(mad2019,-Y)
@@ -46,7 +46,7 @@ MLest <- function(X,
                   rf.depth = NULL,
                   polynomial = 1,
                   FVs = TRUE,
-                  OLSensemblefolds = 2,
+                  ensemblefolds = 2,
                   weights = NULL){
   ML = match.arg(ML)
   X <- dplyr::as_tibble(X)
@@ -72,7 +72,7 @@ MLest <- function(X,
                 rf.cf.ntree = rf.cf.ntree,
                 rf.depth = rf.depth,
                 polynomial = polynomial,
-                OLSensemblefolds = OLSensemblefolds)
+                ensemblefolds = ensemblefolds)
     if (ML == "OLSensemble"){
       coefs = m$coefs
       m = m$models
