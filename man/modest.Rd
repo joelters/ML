@@ -9,11 +9,12 @@ modest(
   Y,
   ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Logit_lasso", "OLS", "grf", "SL",
     "OLSensemble"),
-  ensemble = c("Lasso", "Ridge", "RF", "CIF", "XGB", "Logit_lasso", "CB"),
+  OLSensemble,
+  SL.library,
   rf.cf.ntree = 500,
   rf.depth = NULL,
   polynomial = 1,
-  ensemblefolds = 2,
+  ensemblefolds = 10,
   weights = NULL
 )
 }
@@ -23,9 +24,6 @@ modest(
 \item{Y}{is a vector containing the label}
 
 \item{ML}{is a string specifying which machine learner to use}
-
-\item{ensemble}{is a string vector specifying which learners
-should be used in ensemble methods (e.g. OLSensemble, SuperLearner)}
 
 \item{rf.cf.ntree}{how many trees should be grown when using RF or CIF}
 
@@ -37,6 +35,9 @@ all pairwise interactions. 3 squares and cubes all variables and adds all
 pairwise and threewise interactions...}
 
 \item{weights}{is a vector containing survey weights adding up to 1}
+
+\item{ensemble}{is a string vector specifying which learners
+should be used in ensemble methods (e.g. OLSensemble, SuperLearner)}
 }
 \value{
 the object that the machine learner package returns, in case of OLSensemble

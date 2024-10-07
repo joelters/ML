@@ -9,7 +9,8 @@ MLest(
   Y,
   ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Logit_lasso", "OLS", "grf", "SL",
     "OLSensemble"),
-  ensemble = c("SL.Lasso", "SL.Ridge", "SL.RF", "SL.CIF", "SL.XGB", "SL.CB"),
+  OLSensemble,
+  SL.library,
   rf.cf.ntree = 500,
   rf.depth = NULL,
   polynomial = 1,
@@ -27,9 +28,6 @@ was estimated}
 
 \item{ML}{is a string specifying which machine learner to use}
 
-\item{ensemble}{is a string vector specifying which learners
-should be used in ensemble methods (e.g. OLSensemble, SuperLearner)}
-
 \item{rf.cf.ntree}{how many trees should be grown when using RF or CIF}
 
 \item{rf.depth}{how deep should trees be grown in RF (NULL is default from ranger)}
@@ -44,6 +42,9 @@ pairwise and threewise interactions...}
 \item{ensemblefolds}{number of folds to split in OLSensemble method}
 
 \item{weights}{survey weights adding up to 1}
+
+\item{ensemble}{is a string vector specifying which learners
+should be used in ensemble methods (e.g. OLSensemble, SuperLearner)}
 }
 \value{
 list containing model and fitted values

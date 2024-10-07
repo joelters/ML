@@ -41,7 +41,8 @@ MLest <- function(X,
                   Y,
                   ML = c("Lasso","Ridge","RF","CIF","XGB","CB",
                          "Logit_lasso","OLS","grf","SL","OLSensemble"),
-                  ensemble = c("SL.Lasso","SL.Ridge","SL.RF","SL.CIF","SL.XGB","SL.CB"),
+                  OLSensemble,
+                  SL.library,
                   rf.cf.ntree = 500,
                   rf.depth = NULL,
                   polynomial = 1,
@@ -51,8 +52,9 @@ MLest <- function(X,
   ML = match.arg(ML)
   X <- dplyr::as_tibble(X)
   if (ML == "SL"){
+    require("ranger")
     #Estimate model
-    m <- SuperLearner::SuperLearner(Y, X, SL.library = ensemble,
+    m <- SuperLearner::SuperLearner(Y, X, SL.library = SL.library,
                                     family = stats::gaussian(),
                                     cvControl = list(V = 5),
                                     obsWeights = weights)

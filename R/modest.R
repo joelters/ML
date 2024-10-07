@@ -38,11 +38,12 @@ modest <- function(X,
                    Y,
                    ML = c("Lasso","Ridge","RF","CIF","XGB","CB",
                           "Logit_lasso","OLS","grf","SL","OLSensemble"),
-                   ensemble = c("Lasso","Ridge","RF","CIF","XGB","Logit_lasso","CB"),
+                   OLSensemble,
+                   SL.library,
                    rf.cf.ntree = 500,
                    rf.depth = NULL,
                    polynomial = 1,
-                   ensemblefolds = 2,
+                   ensemblefolds = 10,
                    weights = NULL){
   Y <- as.numeric(Y)
   ML = match.arg(ML)
@@ -90,7 +91,6 @@ modest <- function(X,
   }
 
   if (ML == "SL"){
-    ensemble = paste("SL.",ensemble, sep = "")
     if (!requireNamespace("SuperLearner", quietly = TRUE)) {
       stop(
         "Package \"SuperLearner\" must be installed to use this function.",
@@ -98,7 +98,7 @@ modest <- function(X,
       )
     }
     #Estimate model
-    model <- SuperLearner::SuperLearner(Y, X, SL.library = ensemble,
+    model <- SuperLearner::SuperLearner(Y, X, SL.library = SL.library,
                                         family = stats::gaussian(),
                                         cvControl = list(V = ensemblefolds),
                                         obsWeights = weights)
