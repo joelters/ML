@@ -14,6 +14,7 @@ MLcv(
   Kcv = 5,
   rf.cf.ntree = 500,
   rf.depth = NULL,
+  mtry = max(floor(ncol(X)/3), 1),
   ensemblefolds = 2,
   polynomial = 1,
   verbose = FALSE

@@ -13,6 +13,7 @@ MLest(
   SL.library,
   rf.cf.ntree = 500,
   rf.depth = NULL,
+  mtry = max(floor(ncol(X)/3), 1),
   polynomial = 1,
   FVs = TRUE,
   ensemblefolds = 2,

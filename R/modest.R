@@ -8,7 +8,7 @@
 #' @param X is a dataframe containing all the features
 #' @param Y is a vector containing the label
 #' @param ML is a string specifying which machine learner to use
-#' @param ensemble is a string vector specifying which learners
+#' @param OLSensemble is a string vector specifying which learners
 #' should be used in ensemble methods (e.g. OLSensemble, SuperLearner)
 #' @param rf.cf.ntree how many trees should be grown when using RF or CIF
 #' @param rf.depth how deep should trees be grown in RF (NULL is default from ranger)
@@ -186,7 +186,7 @@ modest <- function(X,
   else if(ML == "OLSensemble"){
     n <- length(Y)
     ind <- split(seq(n), seq(n) %% ensemblefolds)
-    res = sapply(ensemble, function(u){
+    res = sapply(OLSensemble, function(u){
       pred = rep(NA,n)
       for (ii in 1:ensemblefolds){
         mm = ML::modest(X[-ind[[ii]],], Y[-ind[[ii]]], ML = u,
@@ -202,17 +202,17 @@ modest <- function(X,
       pred
     })
     dfens = data.frame(Y = Y,res)
-    names(dfens) = c("Y",ensemble)
+    names(dfens) = c("Y",OLSensemble)
     ols = lm(Y~., data = dfens)
     coefs = ols$coefficients
-    ms = lapply(ensemble, function(u){
+    ms = lapply(OLSensemble, function(u){
       ML::modest(X, Y, ML = u,
                  rf.cf.ntree = rf.cf.ntree,
                  rf.depth = rf.depth,
                  polynomial = polynomial,
                  weights = weights)
     })
-    names(ms) = ensemble
+    names(ms) = OLSensemble
     return(list(models = ms, coefs = coefs))
   }
 }

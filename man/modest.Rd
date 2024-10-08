@@ -13,6 +13,7 @@ modest(
   SL.library,
   rf.cf.ntree = 500,
   rf.depth = NULL,
+  mtry = max(floor(ncol(X)/3), 1),
   polynomial = 1,
   ensemblefolds = 10,
   weights = NULL
@@ -25,6 +26,9 @@ modest(
 
 \item{ML}{is a string specifying which machine learner to use}
 
+\item{OLSensemble}{is a string vector specifying which learners
+should be used in ensemble methods (e.g. OLSensemble, SuperLearner)}
+
 \item{rf.cf.ntree}{how many trees should be grown when using RF or CIF}
 
 \item{rf.depth}{how deep should trees be grown in RF (NULL is default from ranger)}
@@ -35,9 +39,6 @@ all pairwise interactions. 3 squares and cubes all variables and adds all
 pairwise and threewise interactions...}
 
 \item{weights}{is a vector containing survey weights adding up to 1}
-
-\item{ensemble}{is a string vector specifying which learners
-should be used in ensemble methods (e.g. OLSensemble, SuperLearner)}
 }
 \value{
 the object that the machine learner package returns, in case of OLSensemble
