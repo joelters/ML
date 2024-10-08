@@ -193,7 +193,7 @@ modest <- function(X,
                         rf.cf.ntree = rf.cf.ntree,
                         rf.depth = rf.depth,
                         polynomial = polynomial,
-                        weights = weights)
+                        weights = weights[-ind[[ii]]])
 
         pred[ind[[ii]]] = ML::FVest(mm,X[-ind[[ii]],],Y[-ind[[ii]]],
                          X[ind[[ii]],],Y[ind[[ii]]],ML = u,
