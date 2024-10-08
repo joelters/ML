@@ -42,6 +42,7 @@ modest <- function(X,
                    SL.library,
                    rf.cf.ntree = 500,
                    rf.depth = NULL,
+                   mtry = max(floor(ncol(X)/3), 1),
                    polynomial = 1,
                    ensemblefolds = 10,
                    weights = NULL){
@@ -128,7 +129,7 @@ modest <- function(X,
   else if (ML == "RF"){
     model <- ranger::ranger(Y ~ .,
                     data = dta,
-                    mtry = max(floor(ncol(X)/3), 1),
+                    mtry = mtry,
                     num.trees = rf.cf.ntree,
                     max.depth = rf.depth,
                     case.weights = weights,
@@ -138,7 +139,7 @@ modest <- function(X,
   else if (ML == "CIF"){
     model <- party::cforest(Y ~ .,
                      data = dta,
-                     controls = party::cforest_unbiased(mtry = max(floor(ncol(X)/3), 1),
+                     controls = party::cforest_unbiased(mtry = mtry,
                                                         ntree = rf.cf.ntree),
                      weights = weights)
   }

@@ -180,7 +180,6 @@ FVest <- function(model,
   else if (ML == "grf"){
     FVs = stats::predict(model, newdata = Xnew)$predictions
   }
-
   else if (ML == "SL"){
     if (!requireNamespace("SuperLearner", quietly = TRUE)) {
       stop(
