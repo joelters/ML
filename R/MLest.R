@@ -71,7 +71,9 @@ MLest <- function(X,
   }
   else{
     #Estimate model
-    m <- modest(X, Y, ML, ensemble = ensemble, weights = weights,
+    m <- modest(X, Y, ML, OLSensemble = OLSensemble,
+                SL.library = SL.library,
+                weights = weights,
                 rf.cf.ntree = rf.cf.ntree,
                 rf.depth = rf.depth,
                 mtry = mtry,
