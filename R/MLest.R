@@ -11,14 +11,19 @@
 #' @param Y is a vector containing the labels for which the model
 #' was estimated
 #' @param ML is a string specifying which machine learner to use
-#' @param ensemble is a string vector specifying which learners
-#' should be used in ensemble methods (e.g. OLSensemble, SuperLearner)
+#' @param OLSensemble is a string vector specifying which learners
+#' should be used in OLS ensemble method
+#' @param SL.library is a string vector specifying which learners
+#' should be used in SuperLearner
 #' @param rf.cf.ntree how many trees should be grown when using RF or CIF
 #' @param rf.depth how deep should trees be grown in RF (NULL is default from ranger)
-#' @param polynomial degree of polynomial to be fitted when using Lasso, Ridge
-#' or Logit Lasso. 1 just fits the input X. 2 squares all variables and adds
+#' @param mtry how many variables to consider at each split in RF
+#' @param polynomial degree of polynomial to be fitted when using Lasso, Ridge,
+#' Logit Lasso or OLS. 1 just fits the input X. 2 squares all variables and adds
 #' all pairwise interactions. 3 squares and cubes all variables and adds all
 #' pairwise and threewise interactions...
+#' @param xgb.nrounds is an integer specifying how many rounds to use in XGB
+#' @param xgb.max.depth is an integer specifying how deep trees should be grown in XGB
 #' @param FVs a logical indicating whether FVs should be computed
 #' @param weights survey weights adding up to 1
 #' @param ensemblefolds number of folds to split in OLSensemble method
@@ -47,6 +52,8 @@ MLest <- function(X,
                   rf.depth = NULL,
                   mtry = max(floor(ncol(X)/3), 1),
                   polynomial = 1,
+                  xgb.nrounds = 200,
+                  xgb.max.depth = 6,
                   FVs = TRUE,
                   ensemblefolds = 2,
                   weights = NULL){
@@ -78,6 +85,8 @@ MLest <- function(X,
                 rf.depth = rf.depth,
                 mtry = mtry,
                 polynomial = polynomial,
+                xgb.nrounds = xgb.nrounds,
+                xgb.max.depth = xgb.max.depth,
                 ensemblefolds = ensemblefolds)
     if (ML == "OLSensemble"){
       coefs = m$coefs

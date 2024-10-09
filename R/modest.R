@@ -9,13 +9,19 @@
 #' @param Y is a vector containing the label
 #' @param ML is a string specifying which machine learner to use
 #' @param OLSensemble is a string vector specifying which learners
-#' should be used in ensemble methods (e.g. OLSensemble, SuperLearner)
+#' should be used in OLS ensemble method
+#' @param SL.library is a string vector specifying which learners
+#' should be used in SuperLearner
 #' @param rf.cf.ntree how many trees should be grown when using RF or CIF
 #' @param rf.depth how deep should trees be grown in RF (NULL is default from ranger)
-#' @param polynomial degree of polynomial to be fitted when using Lasso, Ridge
-#' or Logit Lasso. 1 just fits the input X. 2 squares all variables and adds
+#' @param polynomial degree of polynomial to be fitted when using Lasso, Ridge,
+#' Logit Lasso or OLS. 1 just fits the input X. 2 squares all variables and adds
 #' all pairwise interactions. 3 squares and cubes all variables and adds all
 #' pairwise and threewise interactions...
+#' @param ensemblefolds is an integer specifying how many folds to use in ensemble
+#' methods such as OLSensemble or SuperLearner
+#' @param xgb.nrounds is an integer specifying how many rounds to use in XGB
+#' @param xgb.max.depth is an integer specifying how deep trees should be grown in XGB
 #' @param weights is a vector containing survey weights adding up to 1
 #' @returns the object that the machine learner package returns, in case of OLSensemble
 #' it returns the coefficients assigned to each machine learner in ensemble
@@ -45,6 +51,8 @@ modest <- function(X,
                    mtry = max(floor(ncol(X)/3), 1),
                    polynomial = 1,
                    ensemblefolds = 10,
+                   xgb.nrounds = 200,
+                   xgb.max.depth = 6,
                    weights = NULL){
   Y <- as.numeric(Y)
   ML = match.arg(ML)
@@ -153,8 +161,8 @@ modest <- function(X,
     }
     xgb_data = xgboost::xgb.DMatrix(data = data.matrix(X), label = Y)
     model <- xgboost::xgboost(data = xgb_data,
-                     nrounds = 200,
-                     max.depth = 1,
+                     nrounds = xgb.nrounds,
+                     max.depth = xgb.max.depth,
                      verbose = 0,
                      weight = weights)
   }

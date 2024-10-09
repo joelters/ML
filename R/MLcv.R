@@ -11,9 +11,23 @@
 #' @param Y is a vector containing the labels for which the model
 #' was estimated
 #' @param ML string vector specifying which machine learners to use
-#' @param Kcv number of folds
-#' @param ensemble is a string vector specifying which learners
-#' should be used in ensemble methods (e.g. OLSensemble, SuperLearner)
+#' @param OLSensemble is a string vector specifying which learners
+#' should be used in OLS ensemble method
+#' @param SL.library is a string vector specifying which learners
+#' should be used in SuperLearner
+#' @param Kcv number of folds in cross-validation
+#' @param rf.cf.ntree how many trees should be grown when using RF or CIF
+#' @param rf.depth how deep should trees be grown in RF (NULL is default from ranger)
+#' @param mtry how many variables to consider at each split in RF
+#' @param ensemblefolds is an integer specifying how many folds to use in ensemble
+#' methods such as OLSensemble or SuperLearner
+#' @param polynomial degree of polynomial to be fitted when using Lasso, Ridge,
+#' Logit Lasso or OLS. 1 just fits the input X. 2 squares all variables and adds
+#' all pairwise interactions. 3 squares and cubes all variables and adds all
+#' pairwise and threewise interactions...
+#' @param xgb.nrounds is an integer specifying how many rounds to use in XGB
+#' @param xgb.max.depth is an integer specifying how deep trees should be grown in XGB
+#' @param verbose logical specifying whether to print progress
 #' @returns list containing ML attaining minimum RMSE and RMSE
 #'
 #'
@@ -30,6 +44,8 @@ MLcv <- function(X,
                  mtry = max(floor(ncol(X)/3), 1),
                  ensemblefolds = 2,
                  polynomial = 1,
+                 xgb.nrounds = 200,
+                 xgb.max.depth = 6,
                  verbose = FALSE){
   n <- length(Y)
   X <- dplyr::as_tibble(X)
@@ -41,11 +57,14 @@ MLcv <- function(X,
         print(paste("Fold ",i, " of ", Kcv, " of ML ",u, sep = ""))
       }
       m <- ML::modest(X[-ind[[i]],],Y[-ind[[i]]],ML = u,
-                      ensemble = ensemble,
+                      OLSensemble = OLSensemble,
+                      SL.library = SL.library,
                       rf.cf.ntree = rf.cf.ntree,
                       rf.depth = rf.depth,
                       mtry = mtry,
                       polynomial = polynomial,
+                      xgb.nrounds = xgb.nrounds,
+                      xgb.max.depth = xgb.max.depth,
                       ensemblefolds = ensemblefolds)
       if (u == "OLSensemble"){
         coefs = m$coefs

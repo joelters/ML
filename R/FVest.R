@@ -18,8 +18,8 @@
 #' rows of Xnew. It only matters that it has correct length so one
 #' could use a vectors of zeros.
 #' @param ML is a string specifying which machine learner to use
-#' @param polynomial degree of polynomial to be fitted when using Lasso, Ridge
-#' or Logit Lasso. 1 just fits the input X. 2 squares all variables and adds
+#' @param polynomial degree of polynomial to be fitted when using Lasso, Ridge,
+#' Logit Lasso or OLS. 1 just fits the input X. 2 squares all variables and adds
 #' all pairwise interactions. 3 squares and cubes all variables and adds all
 #' pairwise and threewise interactions...
 #' @param coefs optimal coefficients for OLSensemble, computed in modest

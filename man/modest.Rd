@@ -16,6 +16,8 @@ modest(
   mtry = max(floor(ncol(X)/3), 1),
   polynomial = 1,
   ensemblefolds = 10,
+  xgb.nrounds = 200,
+  xgb.max.depth = 6,
   weights = NULL
 )
 }
@@ -27,16 +29,26 @@ modest(
 \item{ML}{is a string specifying which machine learner to use}
 
 \item{OLSensemble}{is a string vector specifying which learners
-should be used in ensemble methods (e.g. OLSensemble, SuperLearner)}
+should be used in OLS ensemble method}
+
+\item{SL.library}{is a string vector specifying which learners
+should be used in SuperLearner}
 
 \item{rf.cf.ntree}{how many trees should be grown when using RF or CIF}
 
 \item{rf.depth}{how deep should trees be grown in RF (NULL is default from ranger)}
 
-\item{polynomial}{degree of polynomial to be fitted when using Lasso, Ridge
-or Logit Lasso. 1 just fits the input X. 2 squares all variables and adds
+\item{polynomial}{degree of polynomial to be fitted when using Lasso, Ridge,
+Logit Lasso or OLS. 1 just fits the input X. 2 squares all variables and adds
 all pairwise interactions. 3 squares and cubes all variables and adds all
 pairwise and threewise interactions...}
+
+\item{ensemblefolds}{is an integer specifying how many folds to use in ensemble
+methods such as OLSensemble or SuperLearner}
+
+\item{xgb.nrounds}{is an integer specifying how many rounds to use in XGB}
+
+\item{xgb.max.depth}{is an integer specifying how deep trees should be grown in XGB}
 
 \item{weights}{is a vector containing survey weights adding up to 1}
 }
