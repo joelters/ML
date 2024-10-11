@@ -184,7 +184,12 @@ MLtuning <- function(X,
       if ("rf.cf.ntree" %notin% ls()){
         rf.cf.ntree = 500
       }
-      if ("rf.depth" %notin% ls() | rf.depth == 23101995){
+      if ("rf.depth" %in% ls()){
+        if (rf.depth == 23101995){
+          rf.depth = NULL
+        }
+      }
+      if ("rf.depth" %notin% ls()){
         rf.depth = NULL
       }
       if ("mtry" %notin% ls()){
