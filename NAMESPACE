@@ -3,5 +3,6 @@
 export(FVest)
 export(MLcv)
 export(MLest)
+export(MLtuning)
 export(modest)
 importFrom(SuperLearner,All)
