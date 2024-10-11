@@ -156,7 +156,7 @@ MLtuning <- function(X,
       res = do.call(rbind,res)
       res = data.frame(combs,res)
     } else if (u == "CB"){
-      stop("No hyperparameter tuning for CB yet")
+      warning("No hyperparameter tuning for CB yet, default ML parameters are used")
     } else if (u == "OLSensemble"){
       res0 = lapply(OLSensemble, function(v){
         a = MLtuning(X = X,
