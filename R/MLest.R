@@ -24,6 +24,8 @@
 #' pairwise and threewise interactions...
 #' @param xgb.nrounds is an integer specifying how many rounds to use in XGB
 #' @param xgb.max.depth is an integer specifying how deep trees should be grown in XGB
+#' @param cb.iterations The maximum number of trees that can be built in CB
+#' @param cb.depth The depth of the trees in CB
 #' @param FVs a logical indicating whether FVs should be computed
 #' @param weights survey weights adding up to 1
 #' @param ensemblefolds number of folds to split in OLSensemble method
@@ -54,6 +56,8 @@ MLest <- function(X,
                   polynomial = 1,
                   xgb.nrounds = 200,
                   xgb.max.depth = 6,
+                  cb.iterations = 1000,
+                  cb.depth = 6,
                   FVs = TRUE,
                   ensemblefolds = 2,
                   weights = NULL){
@@ -87,6 +91,8 @@ MLest <- function(X,
                 polynomial = polynomial,
                 xgb.nrounds = xgb.nrounds,
                 xgb.max.depth = xgb.max.depth,
+                cb.iterations = cb.iterations,
+                cb.depth = cb.depth,
                 ensemblefolds = ensemblefolds)
     if (ML == "OLSensemble"){
       coefs = m$coefs

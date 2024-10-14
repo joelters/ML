@@ -18,6 +18,8 @@ modest(
   ensemblefolds = 10,
   xgb.nrounds = 200,
   xgb.max.depth = 6,
+  cb.iterations = 1000,
+  cb.depth = 6,
   weights = NULL
 )
 }
@@ -49,6 +51,10 @@ methods such as OLSensemble or SuperLearner}
 \item{xgb.nrounds}{is an integer specifying how many rounds to use in XGB}
 
 \item{xgb.max.depth}{is an integer specifying how deep trees should be grown in XGB}
+
+\item{cb.iterations}{The maximum number of trees that can be built in CB}
+
+\item{cb.depth}{The depth of the trees in CB}
 
 \item{weights}{is a vector containing survey weights adding up to 1}
 }

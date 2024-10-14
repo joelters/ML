@@ -19,6 +19,8 @@ MLtuning(
   polynomial.grid = c(1, 2, 3),
   xgb.nrounds.grid = c(100, 200, 500),
   xgb.max.depth.grid = c(1, 3, 6),
+  cb.iterations.grid = c(100, 500, 1000),
+  cb.depth.grid = c(1, 3, 6, 10),
   verbose = FALSE
 )
 }
@@ -59,6 +61,10 @@ pairwise and threewise interactions...}
 \item{xgb.max.depth.grid}{is an integer specifying how deep trees should be grown in XGB}
 
 \item{verbose}{logical specifying whether to print progress}
+
+\item{cb.iterations}{The maximum number of trees that can be built in CB}
+
+\item{cb.depth}{The depth of the trees in CB}
 }
 \value{
 list containing ML attaining minimum RMSE and RMSE

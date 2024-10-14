@@ -22,6 +22,8 @@
 #' methods such as OLSensemble or SuperLearner
 #' @param xgb.nrounds is an integer specifying how many rounds to use in XGB
 #' @param xgb.max.depth is an integer specifying how deep trees should be grown in XGB
+#' @param cb.iterations The maximum number of trees that can be built in CB
+#' @param cb.depth The depth of the trees in CB
 #' @param weights is a vector containing survey weights adding up to 1
 #' @returns the object that the machine learner package returns, in case of OLSensemble
 #' it returns the coefficients assigned to each machine learner in ensemble
@@ -53,6 +55,8 @@ modest <- function(X,
                    ensemblefolds = 10,
                    xgb.nrounds = 200,
                    xgb.max.depth = 6,
+                   cb.iterations = 1000,
+                   cb.depth = 6,
                    weights = NULL){
   Y <- as.numeric(Y)
   ML = match.arg(ML)
@@ -183,7 +187,8 @@ modest <- function(X,
                                             label = Y,
                                             weight = weights)
     model <- catboost::catboost.train(CB.data,
-                            params = list(iterations = 500,
+                            params = list(iterations = cb.iterations,
+                                          depth = cb.depth,
                                           logging_level = 'Silent'))
   }
 

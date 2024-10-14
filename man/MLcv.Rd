@@ -19,6 +19,8 @@ MLcv(
   polynomial = 1,
   xgb.nrounds = 200,
   xgb.max.depth = 6,
+  cb.iterations = 1000,
+  cb.depth = 6,
   verbose = FALSE
 )
 }
@@ -56,6 +58,10 @@ pairwise and threewise interactions...}
 \item{xgb.nrounds}{is an integer specifying how many rounds to use in XGB}
 
 \item{xgb.max.depth}{is an integer specifying how deep trees should be grown in XGB}
+
+\item{cb.iterations}{The maximum number of trees that can be built in CB}
+
+\item{cb.depth}{The depth of the trees in CB}
 
 \item{verbose}{logical specifying whether to print progress}
 }

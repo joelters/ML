@@ -28,6 +28,8 @@
 #' pairwise and threewise interactions...
 #' @param xgb.nrounds.grid is an integer specifying how many rounds to use in XGB
 #' @param xgb.max.depth.grid is an integer specifying how deep trees should be grown in XGB
+#' @param cb.iterations The maximum number of trees that can be built in CB
+#' @param cb.depth The depth of the trees in CB
 #' @param verbose logical specifying whether to print progress
 #' @returns list containing ML attaining minimum RMSE and RMSE
 #'
@@ -47,6 +49,8 @@ MLtuning <- function(X,
                  polynomial.grid = c(1,2,3),
                  xgb.nrounds.grid = c(100,200,500),
                  xgb.max.depth.grid = c(1,3,6),
+                 cb.iterations.grid = c(100,500,1000),
+                 cb.depth.grid = c(1,3,6,10),
                  verbose = FALSE){
   n <- length(Y)
   X <- dplyr::as_tibble(X)
@@ -156,7 +160,26 @@ MLtuning <- function(X,
       res = do.call(rbind,res)
       res = data.frame(combs,res)
     } else if (u == "CB"){
-      warning("No hyperparameter tuning for CB yet, default ML parameters are used")
+      combs = expand.grid(cb.iterations.grid,cb.depth.grid)
+      names(combs) = c("cb.iterations","cb.depth")
+      res = lapply(1:nrow(combs),function(j){
+        cb.iterations = combs$cb.iterations[j]
+        cb.depth = combs$cb.depth[j]
+        fv <- rep(0,n)
+        for (i in 1:Kcv){
+          if (verbose == TRUE){
+            print(paste("Fold ",i, " of ", Kcv, " of ML ",u, sep = ""))
+          }
+          m <- ML::modest(X[-ind[[i]],],Y[-ind[[i]]],ML = u,
+                          cb.iteration = cb.iterations,
+                          cb.depth = cb.depth)
+          fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
+                                    X[ind[[i]],],Y[ind[[i]]],ML = u)
+        }
+        data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2)))
+      })
+      res = do.call(rbind,res)
+      res = data.frame(combs,res)
     } else if (u == "OLSensemble"){
       res0 = lapply(OLSensemble, function(v){
         a = MLtuning(X = X,
@@ -201,6 +224,12 @@ MLtuning <- function(X,
       if ("xgb.max.depth" %notin% ls()){
         xgb.max.depth = 6
       }
+      if ("cb.iterations" %notin% ls()){
+        cb.iterations = 1000
+      }
+      if ("cb.depth" %notin% ls()){
+        cb.depth = 6
+      }
       if (1 %in% ensemblefolds.grid){
         stop("ensemblefolds has to be an integer larger than 1")
       }
@@ -220,7 +249,9 @@ MLtuning <- function(X,
                           polynomial = polynomial,
                           mt = mtry,
                           xgb.nrounds = xgb.nrounds,
-                          xgb.max.depth = xgb.max.depth)
+                          xgb.max.depth = xgb.max.depth,
+                          cb.iterations = cb.iterations,
+                          cb.depth = cb.depth)
 
           coefs = m$coefs
           m = m$models
