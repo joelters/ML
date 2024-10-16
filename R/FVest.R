@@ -67,7 +67,6 @@ FVest <- function(model,
   dta <- dplyr::as_tibble(cbind(Y = rep(0,nrow(Xnew)),Xnew))
   colnames(dta)[1] <- "Y"
 
-
   if (ML == "Lasso" | ML == "Ridge" | ML == "Logit_lasso" | ML == "OLS"){
     if (polynomial == 1){
       MM <- stats::model.matrix(~(.), Xnew)
@@ -210,7 +209,7 @@ FVest <- function(model,
       stop("For OLSensemble, model has to be a list of the models used for
            the ensemble")
     }
-    ensemble = names(model)
+    ensemble = names(model$models)
     if (class(coefs) != "numeric" | length(coefs) != (length(ensemble)+1)){
       stop("coefs has to be numeric and have the same dimension as ensemble plus 1
            (the intercept)")
@@ -218,7 +217,7 @@ FVest <- function(model,
     nnew = length(Ynew)
     Xpred = matrix(rep(NA,nnew*length(ensemble)),nnew,length(ensemble))
     for (ii in 1:length(ensemble)){
-      Xpred[,ii] = ML::FVest(model[[ii]], X, Y, Xnew, Ynew,
+      Xpred[,ii] = ML::FVest(model$models[[ii]], X, Y, Xnew, Ynew,
                              ML = ensemble[ii],polynomial = polynomial)
     }
     Xpred = cbind(rep(1,nnew),Xpred)

@@ -19,7 +19,7 @@ MLcv(
   polynomial = 1,
   xgb.nrounds = 200,
   xgb.max.depth = 6,
-  cb.iterations = 1000,
+  cb.iterations = 500,
   cb.depth = 6,
   verbose = FALSE
 )
