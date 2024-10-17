@@ -96,7 +96,7 @@ MLest <- function(X,
                 ensemblefolds = ensemblefolds)
     if (ML == "OLSensemble"){
       coefs = m$coefs
-      m = m$models
+      # m = m$models
     } else{coefs = NULL}
     #Fitted values
     if (FVs == TRUE){
