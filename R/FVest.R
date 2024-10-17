@@ -209,7 +209,7 @@ FVest <- function(model,
       stop("For OLSensemble, model has to be a list of the models used for
            the ensemble")
     }
-    ensemble = names(model$models)
+    ensemble = names(model)
     if (class(coefs) != "numeric" | length(coefs) != (length(ensemble)+1)){
       stop("coefs has to be numeric and have the same dimension as ensemble plus 1
            (the intercept)")
@@ -217,7 +217,7 @@ FVest <- function(model,
     nnew = length(Ynew)
     Xpred = matrix(rep(NA,nnew*length(ensemble)),nnew,length(ensemble))
     for (ii in 1:length(ensemble)){
-      Xpred[,ii] = ML::FVest(model$models[[ii]], X, Y, Xnew, Ynew,
+      Xpred[,ii] = ML::FVest(model[[ii]], X, Y, Xnew, Ynew,
                              ML = ensemble[ii],polynomial = polynomial)
     }
     Xpred = cbind(rep(1,nnew),Xpred)
