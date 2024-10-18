@@ -254,7 +254,7 @@ MLtuning <- function(X,
                           cb.depth = cb.depth)
 
           coefs = m$coefs
-          m = m$models
+          # m = m$models
 
           fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
                                     X[ind[[i]],],Y[ind[[i]]],ML = u,
