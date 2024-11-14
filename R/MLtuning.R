@@ -68,18 +68,24 @@ MLtuning <- function(X,
     if (u == "Lasso" | u == "Ridge" | u == "Logit_lasso" | u == "OLS"){
       if (u == "Lasso"){
         polynomial.grid = polynomial.Lasso.grid
+        combs = expand.grid(polynomial.grid)
+        names(combs) = "polynomial.Lasso"
       }
       else if (u == "Ridge"){
         polynomial.grid = polynomial.Ridge.grid
+        combs = expand.grid(polynomial.grid)
+        names(combs) = "polynomial.Ridge"
       }
       else if (u == "Logit_lasso"){
         polynomial.grid = polynomial.Logit_lasso.grid
+        combs = expand.grid(polynomial.grid)
+        names(combs) = "polynomial.Logit_lasso"
       }
       else if (u == "OLS"){
         polynomial.grid = polynomial.OLS.grid
+        combs = expand.grid(polynomial.grid)
+        names(combs) = "polynomial.OLS"
       }
-      combs = expand.grid(polynomial.grid)
-      names(combs) = "polynomial"
       res = lapply(1:nrow(combs),function(j){
         polynomial = combs$polynomial[j]
         fv <- rep(0,n)
