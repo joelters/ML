@@ -14,7 +14,10 @@ modest(
   rf.cf.ntree = 500,
   rf.depth = NULL,
   mtry = max(floor(ncol(X)/3), 1),
-  polynomial = 1,
+  polynomial.Lasso = 1,
+  polynomial.Ridge = 1,
+  polynomial.Logit_lasso = 1,
+  polynomial.OLS = 1,
   ensemblefolds = 10,
   xgb.nrounds = 200,
   xgb.max.depth = 6,
@@ -40,10 +43,19 @@ should be used in SuperLearner}
 
 \item{rf.depth}{how deep should trees be grown in RF (NULL is default from ranger)}
 
-\item{polynomial}{degree of polynomial to be fitted when using Lasso, Ridge,
-Logit Lasso or OLS. 1 just fits the input X. 2 squares all variables and adds
+\item{polynomial.Lasso}{degree of polynomial to be fitted when using Lasso.
+1 just fits the input X. 2 squares all variables and adds
 all pairwise interactions. 3 squares and cubes all variables and adds all
 pairwise and threewise interactions...}
+
+\item{polynomial.Ridge}{degree of polynomial to be fitted when using Ridge,
+see polynomial.Lasso for more info.}
+
+\item{polynomial.Logit_lasso}{degree of polynomial to be fitted when using Logit_lasso,
+see polynomial.Lasso for more info.}
+
+\item{polynomial.OLS}{degree of polynomial to be fitted when using OLS,
+see polynomial.Lasso for more info.}
 
 \item{ensemblefolds}{is an integer specifying how many folds to use in ensemble
 methods such as OLSensemble or SuperLearner}
@@ -65,7 +77,7 @@ it returns the coefficients assigned to each machine learner in ensemble
 \description{
 \code{modest} estimates the model for a specified machine learner,
 possible options are Lasso, Ridge, Random Forest, Conditional
-Inference Forest, Extreme Gradient Boosting, Catboosting, Logit lasso
+Inference Forest, Extreme Gradient Boosting, Catboosting, Logit Lasso
 or any combination of these using the SuperLearner package
 }
 \details{

@@ -18,10 +18,16 @@
 #' rows of Xnew. It only matters that it has correct length so one
 #' could use a vectors of zeros.
 #' @param ML is a string specifying which machine learner to use
-#' @param polynomial degree of polynomial to be fitted when using Lasso, Ridge,
-#' Logit Lasso or OLS. 1 just fits the input X. 2 squares all variables and adds
+#' @param polynomial.Lasso degree of polynomial to be fitted when using Lasso.
+#' 1 just fits the input X. 2 squares all variables and adds
 #' all pairwise interactions. 3 squares and cubes all variables and adds all
 #' pairwise and threewise interactions...
+#' @param polynomial.Ridge degree of polynomial to be fitted when using Ridge,
+#' see polynomial.Lasso for more info.
+#' @param polynomial.Logit_lasso degree of polynomial to be fitted when using Logit_lasso,
+#' see polynomial.Lasso for more info.
+#' @param polynomial.OLS degree of polynomial to be fitted when using OLS,
+#' see polynomial.Lasso for more info.
 #' @param coefs optimal coefficients for OLSensemble, computed in modest
 #' @returns vector with fitted values
 #' @examples
@@ -50,7 +56,10 @@ FVest <- function(model,
                   Ynew = Y,
                   ML = c("Lasso","Ridge","RF","CIF","XGB","CB",
                          "Logit_lasso","OLS","grf","SL","OLSensemble"),
-                  polynomial = 1,
+                  polynomial.Lasso = 1,
+                  polynomial.Ridge = 1,
+                  polynomial.Logit_lasso = 1,
+                  polynomial.OLS = 1,
                   coefs = NULL){
   ML = match.arg(ML)
   Ynew <- as.numeric(Ynew)
@@ -68,6 +77,18 @@ FVest <- function(model,
   colnames(dta)[1] <- "Y"
 
   if (ML == "Lasso" | ML == "Ridge" | ML == "Logit_lasso" | ML == "OLS"){
+    if (ML == "Lasso"){
+      polynomial = polynomial.Lasso
+    }
+    else if (ML == "Ridge"){
+      polynomial = polynomial.Ridge
+    }
+    else if (ML == "Logit_lasso"){
+      polynomial = polynomial.Logit_lasso
+    }
+    else if (ML == "OLS"){
+      polynomial = polynomial.OLS
+    }
     if (polynomial == 1){
       MM <- stats::model.matrix(~(.), Xnew)
     }
@@ -221,7 +242,10 @@ FVest <- function(model,
     Xpred = matrix(rep(NA,nnew*length(ensemble)),nnew,length(ensemble))
     for (ii in 1:length(ensemble)){
       Xpred[,ii] = ML::FVest(model$models[[ii]], X, Y, Xnew, Ynew,
-                             ML = ensemble[ii],polynomial = polynomial)
+                             ML = ensemble[ii],polynomial.Lasso = polynomial.Lasso,
+                             polynomial.Ridge = polynomial.Ridge,
+                             polynomial.Logit_lasso = polynomial.Logit_lasso,
+                             polynomial.OLS = polynomial.OLS)
     }
     Xpred = cbind(rep(1,nnew),Xpred)
     FVs = Xpred%*%coefs

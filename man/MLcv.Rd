@@ -16,7 +16,10 @@ MLcv(
   rf.depth = NULL,
   mtry = max(floor(ncol(X)/3), 1),
   ensemblefolds = 2,
-  polynomial = 1,
+  polynomial.Lasso = 1,
+  polynomial.Ridge = 1,
+  polynomial.Logit_lasso = 1,
+  polynomial.OLS = 1,
   xgb.nrounds = 200,
   xgb.max.depth = 6,
   cb.iterations = 500,
@@ -50,10 +53,19 @@ should be used in SuperLearner}
 \item{ensemblefolds}{is an integer specifying how many folds to use in ensemble
 methods such as OLSensemble or SuperLearner}
 
-\item{polynomial}{degree of polynomial to be fitted when using Lasso, Ridge,
-Logit Lasso or OLS. 1 just fits the input X. 2 squares all variables and adds
+\item{polynomial.Lasso}{degree of polynomial to be fitted when using Lasso.
+1 just fits the input X. 2 squares all variables and adds
 all pairwise interactions. 3 squares and cubes all variables and adds all
 pairwise and threewise interactions...}
+
+\item{polynomial.Ridge}{degree of polynomial to be fitted when using Ridge,
+see polynomial.Lasso for more info.}
+
+\item{polynomial.Logit_lasso}{degree of polynomial to be fitted when using Logit_lasso,
+see polynomial.Lasso for more info.}
+
+\item{polynomial.OLS}{degree of polynomial to be fitted when using OLS,
+see polynomial.Lasso for more info.}
 
 \item{xgb.nrounds}{is an integer specifying how many rounds to use in XGB}
 

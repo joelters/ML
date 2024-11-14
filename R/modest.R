@@ -2,7 +2,7 @@
 #'
 #' `modest` estimates the model for a specified machine learner,
 #'  possible options are Lasso, Ridge, Random Forest, Conditional
-#' Inference Forest, Extreme Gradient Boosting, Catboosting, Logit lasso
+#' Inference Forest, Extreme Gradient Boosting, Catboosting, Logit Lasso
 #' or any combination of these using the SuperLearner package
 #'
 #' @param X is a dataframe containing all the features
@@ -14,10 +14,16 @@
 #' should be used in SuperLearner
 #' @param rf.cf.ntree how many trees should be grown when using RF or CIF
 #' @param rf.depth how deep should trees be grown in RF (NULL is default from ranger)
-#' @param polynomial degree of polynomial to be fitted when using Lasso, Ridge,
-#' Logit Lasso or OLS. 1 just fits the input X. 2 squares all variables and adds
+#' @param polynomial.Lasso degree of polynomial to be fitted when using Lasso.
+#' 1 just fits the input X. 2 squares all variables and adds
 #' all pairwise interactions. 3 squares and cubes all variables and adds all
 #' pairwise and threewise interactions...
+#' @param polynomial.Ridge degree of polynomial to be fitted when using Ridge,
+#' see polynomial.Lasso for more info.
+#' @param polynomial.Logit_lasso degree of polynomial to be fitted when using Logit_lasso,
+#' see polynomial.Lasso for more info.
+#' @param polynomial.OLS degree of polynomial to be fitted when using OLS,
+#' see polynomial.Lasso for more info.
 #' @param ensemblefolds is an integer specifying how many folds to use in ensemble
 #' methods such as OLSensemble or SuperLearner
 #' @param xgb.nrounds is an integer specifying how many rounds to use in XGB
@@ -51,7 +57,10 @@ modest <- function(X,
                    rf.cf.ntree = 500,
                    rf.depth = NULL,
                    mtry = max(floor(ncol(X)/3), 1),
-                   polynomial = 1,
+                   polynomial.Lasso = 1,
+                   polynomial.Ridge = 1,
+                   polynomial.Logit_lasso = 1,
+                   polynomial.OLS = 1,
                    ensemblefolds = 10,
                    xgb.nrounds = 200,
                    xgb.max.depth = 6,
@@ -68,6 +77,18 @@ modest <- function(X,
   }
 
   if (ML == "Lasso" | ML == "Ridge" | ML == "Logit_lasso" | ML == "OLS"){
+    if (ML == "Lasso"){
+      polynomial = polynomial.Lasso
+    }
+    else if (ML == "Ridge"){
+      polynomial = polynomial.Ridge
+    }
+    else if (ML == "Logit_lasso"){
+      polynomial = polynomial.Logit_lasso
+    }
+    else if (ML == "OLS"){
+      polynomial = polynomial.OLS
+    }
     if (polynomial == 1){
       MM <- stats::model.matrix(~(.), X)
     }
@@ -205,12 +226,22 @@ modest <- function(X,
         mm = ML::modest(X[-ind[[ii]],], Y[-ind[[ii]]], ML = u,
                         rf.cf.ntree = rf.cf.ntree,
                         rf.depth = rf.depth,
-                        polynomial = polynomial,
+                        polynomial.Lasso = polynomial.Lasso,
+                        polynomial.Ridge = polynomial.Ridge,
+                        polynomial.Logit_lasso = polynomial.Logit_lasso,
+                        polynomial.OLS = polynomial.OLS,
+                        xgb.nrounds = xgb.nrounds,
+                        xgb.max.depth = xgb.max.depth,
+                        cb.iterations = cb.iterations,
+                        cb.depth = cb.depth,
                         weights = weights[-ind[[ii]]])
 
         pred[ind[[ii]]] = ML::FVest(mm,X[-ind[[ii]],],Y[-ind[[ii]]],
                          X[ind[[ii]],],Y[ind[[ii]]],ML = u,
-                         polynomial = polynomial)
+                         polynomial.Lasso = polynomial.Lasso,
+                         polynomial.Ridge = polynomial.Ridge,
+                         polynomial.Logit_lasso = polynomial.Logit_lasso,
+                         polynomial.OLS = polynomial.OLS)
       }
       pred
     })
@@ -222,7 +253,14 @@ modest <- function(X,
       ML::modest(X, Y, ML = u,
                  rf.cf.ntree = rf.cf.ntree,
                  rf.depth = rf.depth,
-                 polynomial = polynomial,
+                 polynomial.Lasso = polynomial.Lasso,
+                 polynomial.Ridge = polynomial.Ridge,
+                 polynomial.Logit_lasso = polynomial.Logit_lasso,
+                 polynomial.OLS = polynomial.OLS,
+                 xgb.nrounds = xgb.nrounds,
+                 xgb.max.depth = xgb.max.depth,
+                 cb.iterations = cb.iterations,
+                 cb.depth = cb.depth,
                  weights = weights)
     })
     names(ms) = OLSensemble

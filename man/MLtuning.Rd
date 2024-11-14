@@ -16,7 +16,10 @@ MLtuning(
   rf.depth.grid = c(2, 4, 6, 10),
   mtry.grid = c(1, 3, 5),
   ensemblefolds.grid = c(2, 5),
-  polynomial.grid = c(1, 2, 3),
+  polynomial.Lasso.grid = c(1, 2, 3),
+  polynomial.Ridge.grid = c(1, 2, 3),
+  polynomial.Logit_lasso.grid = c(1, 2, 3),
+  polynomial.OLS.grid = c(1, 2, 3),
   xgb.nrounds.grid = c(100, 200, 500),
   xgb.max.depth.grid = c(1, 3, 6),
   cb.iterations.grid = c(100, 500, 1000),
@@ -51,10 +54,19 @@ defaults floor(sqrt(ncol(X))) and floor(ncol(X)/3) are always tried}
 \item{ensemblefolds.grid}{is an integer specifying how many folds to use in ensemble
 methods such as OLSensemble or SuperLearner}
 
-\item{polynomial.grid}{degree of polynomial to be fitted when using Lasso, Ridge,
-Logit Lasso or OLS. 1 just fits the input X. 2 squares all variables and adds
+\item{polynomial.Lasso.grid}{degree of polynomial to be fitted when using Lasso.
+1 just fits the input X. 2 squares all variables and adds
 all pairwise interactions. 3 squares and cubes all variables and adds all
 pairwise and threewise interactions...}
+
+\item{polynomial.Ridge.grid}{degree of polynomial to be fitted when using Ridge,
+see polynomial.Lasso for more info.}
+
+\item{polynomial.Logit_lasso.grid}{degree of polynomial to be fitted when using Logit_lasso,
+see polynomial.Lasso for more info.}
+
+\item{polynomial.OLS.grid}{degree of polynomial to be fitted when using OLS,
+see polynomial.Lasso for more info.}
 
 \item{xgb.nrounds.grid}{is an integer specifying how many rounds to use in XGB}
 

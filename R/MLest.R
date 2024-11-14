@@ -18,10 +18,16 @@
 #' @param rf.cf.ntree how many trees should be grown when using RF or CIF
 #' @param rf.depth how deep should trees be grown in RF (NULL is default from ranger)
 #' @param mtry how many variables to consider at each split in RF
-#' @param polynomial degree of polynomial to be fitted when using Lasso, Ridge,
-#' Logit Lasso or OLS. 1 just fits the input X. 2 squares all variables and adds
+#' @param polynomial.Lasso degree of polynomial to be fitted when using Lasso.
+#' 1 just fits the input X. 2 squares all variables and adds
 #' all pairwise interactions. 3 squares and cubes all variables and adds all
 #' pairwise and threewise interactions...
+#' @param polynomial.Ridge degree of polynomial to be fitted when using Ridge,
+#' see polynomial.Lasso for more info.
+#' @param polynomial.Logit_lasso degree of polynomial to be fitted when using Logit_lasso,
+#' see polynomial.Lasso for more info.
+#' @param polynomial.OLS degree of polynomial to be fitted when using OLS,
+#' see polynomial.Lasso for more info.
 #' @param xgb.nrounds is an integer specifying how many rounds to use in XGB
 #' @param xgb.max.depth is an integer specifying how deep trees should be grown in XGB
 #' @param cb.iterations The maximum number of trees that can be built in CB
@@ -53,7 +59,10 @@ MLest <- function(X,
                   rf.cf.ntree = 500,
                   rf.depth = NULL,
                   mtry = max(floor(ncol(X)/3), 1),
-                  polynomial = 1,
+                  polynomial.Lasso = 1,
+                  polynomial.Ridge = 1,
+                  polynomial.Logit_lasso = 1,
+                  polynomial.OLS = 1,
                   xgb.nrounds = 200,
                   xgb.max.depth = 6,
                   cb.iterations = 500,
@@ -88,7 +97,10 @@ MLest <- function(X,
                 rf.cf.ntree = rf.cf.ntree,
                 rf.depth = rf.depth,
                 mtry = mtry,
-                polynomial = polynomial,
+                polynomial.Lasso = polynomial.Lasso,
+                polynomial.Ridge = polynomial.Ridge,
+                polynomial.Logit_lasso = polynomial.Logit_lasso,
+                polynomial.OLS = polynomial.OLS,
                 xgb.nrounds = xgb.nrounds,
                 xgb.max.depth = xgb.max.depth,
                 cb.iterations = cb.iterations,
@@ -100,7 +112,11 @@ MLest <- function(X,
     } else{coefs = NULL}
     #Fitted values
     if (FVs == TRUE){
-      FVs <- FVest(m, X, Y, X, Y, ML, polynomial = polynomial, coefs = coefs)
+      FVs <- FVest(m, X, Y, X, Y, ML, polynomial.Lasso = polynomial.Lasso,
+                   polynomial.Ridge = polynomial.Ridge,
+                   polynomial.Logit_lasso = polynomial.Logit_lasso,
+                   polynomial.OLS = polynomial.OLS,
+                   coefs = coefs)
       return(list("model" = m, "FVs" = FVs, "coefs" = coefs))
     }
     else{

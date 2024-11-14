@@ -12,7 +12,10 @@ FVest(
   Ynew = Y,
   ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Logit_lasso", "OLS", "grf", "SL",
     "OLSensemble"),
-  polynomial = 1,
+  polynomial.Lasso = 1,
+  polynomial.Ridge = 1,
+  polynomial.Logit_lasso = 1,
+  polynomial.OLS = 1,
   coefs = NULL
 )
 }
@@ -35,10 +38,19 @@ could use a vectors of zeros.}
 
 \item{ML}{is a string specifying which machine learner to use}
 
-\item{polynomial}{degree of polynomial to be fitted when using Lasso, Ridge,
-Logit Lasso or OLS. 1 just fits the input X. 2 squares all variables and adds
+\item{polynomial.Lasso}{degree of polynomial to be fitted when using Lasso.
+1 just fits the input X. 2 squares all variables and adds
 all pairwise interactions. 3 squares and cubes all variables and adds all
 pairwise and threewise interactions...}
+
+\item{polynomial.Ridge}{degree of polynomial to be fitted when using Ridge,
+see polynomial.Lasso for more info.}
+
+\item{polynomial.Logit_lasso}{degree of polynomial to be fitted when using Logit_lasso,
+see polynomial.Lasso for more info.}
+
+\item{polynomial.OLS}{degree of polynomial to be fitted when using OLS,
+see polynomial.Lasso for more info.}
 
 \item{coefs}{optimal coefficients for OLSensemble, computed in modest}
 }

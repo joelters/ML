@@ -22,10 +22,16 @@
 #' defaults floor(sqrt(ncol(X))) and floor(ncol(X)/3) are always tried
 #' @param ensemblefolds.grid is an integer specifying how many folds to use in ensemble
 #' methods such as OLSensemble or SuperLearner
-#' @param polynomial.grid degree of polynomial to be fitted when using Lasso, Ridge,
-#' Logit Lasso or OLS. 1 just fits the input X. 2 squares all variables and adds
+#' @param polynomial.Lasso.grid degree of polynomial to be fitted when using Lasso.
+#' 1 just fits the input X. 2 squares all variables and adds
 #' all pairwise interactions. 3 squares and cubes all variables and adds all
 #' pairwise and threewise interactions...
+#' @param polynomial.Ridge.grid degree of polynomial to be fitted when using Ridge,
+#' see polynomial.Lasso for more info.
+#' @param polynomial.Logit_lasso.grid degree of polynomial to be fitted when using Logit_lasso,
+#' see polynomial.Lasso for more info.
+#' @param polynomial.OLS.grid degree of polynomial to be fitted when using OLS,
+#' see polynomial.Lasso for more info.
 #' @param xgb.nrounds.grid is an integer specifying how many rounds to use in XGB
 #' @param xgb.max.depth.grid is an integer specifying how deep trees should be grown in XGB
 #' @param cb.iterations The maximum number of trees that can be built in CB
@@ -46,7 +52,10 @@ MLtuning <- function(X,
                  rf.depth.grid = c(2,4,6,10),
                  mtry.grid = c(1,3,5),
                  ensemblefolds.grid = c(2,5),
-                 polynomial.grid = c(1,2,3),
+                 polynomial.Lasso.grid = c(1,2,3),
+                 polynomial.Ridge.grid = c(1,2,3),
+                 polynomial.Logit_lasso.grid = c(1,2,3),
+                 polynomial.OLS.grid = c(1,2,3),
                  xgb.nrounds.grid = c(100,200,500),
                  xgb.max.depth.grid = c(1,3,6),
                  cb.iterations.grid = c(100,500,1000),
@@ -57,6 +66,18 @@ MLtuning <- function(X,
   ind <- split(seq(n), seq(n) %% Kcv)
   restuning <- lapply(ML,function(u){
     if (u == "Lasso" | u == "Ridge" | u == "Logit_lasso" | u == "OLS"){
+      if (u == "Lasso"){
+        polynomial.grid = polynomial.Lasso.grid
+      }
+      else if (u == "Ridge"){
+        polynomial.grid = polynomial.Ridge.grid
+      }
+      else if (u == "Logit_lasso"){
+        polynomial.grid = polynomial.Logit_lasso.grid
+      }
+      else if (u == "OLS"){
+        polynomial.grid = polynomial.OLS.grid
+      }
       combs = expand.grid(polynomial.grid)
       names(combs) = "polynomial"
       res = lapply(1:nrow(combs),function(j){
@@ -67,10 +88,16 @@ MLtuning <- function(X,
             print(paste("Fold ",i, " of ", Kcv, " of ML ",u, sep = ""))
           }
           m <- ML::modest(X[-ind[[i]],],Y[-ind[[i]]],ML = u,
-                          polynomial = polynomial)
+                          polynomial.Lasso = polynomial,
+                          polynomial.Ridge = polynomial,
+                          polynomial.Logit_lasso = polynomial,
+                          polynomial.OLS = polynomial)
           fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
                                     X[ind[[i]],],Y[ind[[i]]],ML = u,
-                                    polynomial = polynomial)
+                                    polynomial.Lasso = polynomial,
+                                    polynomial.Ridge = polynomial,
+                                    polynomial.Logit_lasso = polynomial,
+                                    polynomial.OLS = polynomial)
         }
         data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2)))
       })
@@ -189,7 +216,10 @@ MLtuning <- function(X,
                  rf.cf.ntree.grid = rf.cf.ntree.grid,
                  rf.depth.grid = rf.depth.grid,
                  mtry.grid = mtry.grid,
-                 polynomial.grid = polynomial.grid,
+                 polynomial.Lasso.grid = polynomial.Lasso.grid,
+                 polynomial.Ridge.grid = polynomial.Ridge.grid,
+                 polynomial.Logit_lasso.grid = polynomial.Logit_lasso.grid,
+                 polynomial.OLS.grid = polynomial.OLS.grid,
                  xgb.nrounds.grid = xgb.nrounds.grid,
                  xgb.max.depth.grid = xgb.max.depth.grid)
         a$results_best[[1]]
@@ -201,8 +231,17 @@ MLtuning <- function(X,
         }
       }
       `%notin%` <- Negate(`%in%`)
-      if ("polynomial" %notin% ls()){
-        polynomial = 1
+      if ("polynomial.Lasso" %notin% ls()){
+        polynomial.Lasso = 1
+      }
+      if ("polynomial.Ridge" %notin% ls()){
+        polynomial.Ridge = 1
+      }
+      if ("polynomial.Logit_lasso" %notin% ls()){
+        polynomial.Logit_lasso = 1
+      }
+      if ("polynomial.OLS" %notin% ls()){
+        polynomial.OLS = 1
       }
       if ("rf.cf.ntree" %notin% ls()){
         rf.cf.ntree = 500
@@ -246,7 +285,10 @@ MLtuning <- function(X,
                           OLSensemble = OLSensemble,
                           rf.cf.ntree = rf.cf.ntree,
                           rf.depth = rf.depth,
-                          polynomial = polynomial,
+                          polynomial.Lasso = polynomial.Lasso,
+                          polynomial.Ridge = polynomial.Ridge,
+                          polynomial.Logit_lasso = polynomial.Logit_lasso,
+                          polynomial.OLS = polynomial.OLS,
                           mt = mtry,
                           xgb.nrounds = xgb.nrounds,
                           xgb.max.depth = xgb.max.depth,
@@ -258,7 +300,10 @@ MLtuning <- function(X,
 
           fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
                                     X[ind[[i]],],Y[ind[[i]]],ML = u,
-                                    polynomial = polynomial,
+                                    polynomial.Lasso = polynomial.Lasso,
+                                    polynomial.Ridge = polynomial.Ridge,
+                                    polynomial.Logit_lasso = polynomial.Logit_lasso,
+                                    polynomial.OLS = polynomial.OLS,
                                     coefs = coefs)
         }
         data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2)))
