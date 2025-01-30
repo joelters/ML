@@ -60,7 +60,8 @@ MLtuning <- function(X,
                  xgb.max.depth.grid = c(1,3,6),
                  cb.iterations.grid = c(100,500,1000),
                  cb.depth.grid = c(1,3,6,10),
-                 verbose = FALSE){
+                 verbose = FALSE,
+                 weights = NULL){
   n <- length(Y)
   X <- dplyr::as_tibble(X)
   ind <- split(seq(n), seq(n) %% Kcv)
@@ -97,7 +98,8 @@ MLtuning <- function(X,
                           polynomial.Lasso = polynomial,
                           polynomial.Ridge = polynomial,
                           polynomial.Logit_lasso = polynomial,
-                          polynomial.OLS = polynomial)
+                          polynomial.OLS = polynomial,
+                          weights = weights)
           fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
                                     X[ind[[i]],],Y[ind[[i]]],ML = u,
                                     polynomial.Lasso = polynomial,
@@ -136,7 +138,8 @@ MLtuning <- function(X,
           m <- ML::modest(X[-ind[[i]],],Y[-ind[[i]]],ML = u,
                           rf.cf.ntree = rf.cf.ntree,
                           rf.depth = rf.depth,
-                          mtry = mtry)
+                          mtry = mtry,
+                          weights = weights)
           fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
                                     X[ind[[i]],],Y[ind[[i]]],ML = u)
         }
@@ -163,7 +166,8 @@ MLtuning <- function(X,
           }
           m <- ML::modest(X[-ind[[i]],],Y[-ind[[i]]],ML = u,
                           rf.cf.ntree = rf.cf.ntree,
-                          mtry = mtry)
+                          mtry = mtry,
+                          weights = weights)
           fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
                                     X[ind[[i]],],Y[ind[[i]]],ML = u)
         }
@@ -184,7 +188,8 @@ MLtuning <- function(X,
           }
           m <- ML::modest(X[-ind[[i]],],Y[-ind[[i]]],ML = u,
                           xgb.nrounds = xgb.nrounds,
-                          xgb.max.depth = xgb.max.depth)
+                          xgb.max.depth = xgb.max.depth,
+                          weights = weights)
           fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
                                     X[ind[[i]],],Y[ind[[i]]],ML = u)
         }
@@ -205,7 +210,8 @@ MLtuning <- function(X,
           }
           m <- ML::modest(X[-ind[[i]],],Y[-ind[[i]]],ML = u,
                           cb.iteration = cb.iterations,
-                          cb.depth = cb.depth)
+                          cb.depth = cb.depth,
+                          weights = weights)
           fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
                                     X[ind[[i]],],Y[ind[[i]]],ML = u)
         }
@@ -227,7 +233,8 @@ MLtuning <- function(X,
                  polynomial.Logit_lasso.grid = polynomial.Logit_lasso.grid,
                  polynomial.OLS.grid = polynomial.OLS.grid,
                  xgb.nrounds.grid = xgb.nrounds.grid,
-                 xgb.max.depth.grid = xgb.max.depth.grid)
+                 xgb.max.depth.grid = xgb.max.depth.grid,
+                 weights = weights)
         a$results_best[[1]]
       })
       for (jt in 1:length(res0)){
@@ -299,7 +306,8 @@ MLtuning <- function(X,
                           xgb.nrounds = xgb.nrounds,
                           xgb.max.depth = xgb.max.depth,
                           cb.iterations = cb.iterations,
-                          cb.depth = cb.depth)
+                          cb.depth = cb.depth,
+                          weights = weights)
 
           coefs = m$coefs
           # m = m$models
