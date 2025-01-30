@@ -36,6 +36,7 @@
 #' @param cb.iterations The maximum number of trees that can be built in CB
 #' @param cb.depth The depth of the trees in CB
 #' @param verbose logical specifying whether to print progress
+#' @param weights is a vector containing survey weights adding up to 1
 #' @returns list containing ML attaining minimum RMSE and RMSE
 #'
 #'
@@ -59,7 +60,8 @@ MLcv <- function(X,
                  xgb.max.depth = 6,
                  cb.iterations = 500,
                  cb.depth = 6,
-                 verbose = FALSE){
+                 verbose = FALSE,
+                 weights = NULL){
   n <- length(Y)
   X <- dplyr::as_tibble(X)
   ind <- split(seq(n), seq(n) %% Kcv)
@@ -83,7 +85,8 @@ MLcv <- function(X,
                       xgb.max.depth = xgb.max.depth,
                       cb.iterations = cb.iterations,
                       cb.depth = cb.depth,
-                      ensemblefolds = ensemblefolds)
+                      ensemblefolds = ensemblefolds,
+                      weights = weights)
       if (u == "OLSensemble"){
         coefs = m$coefs
         m = m$models

@@ -24,7 +24,8 @@ MLcv(
   xgb.max.depth = 6,
   cb.iterations = 500,
   cb.depth = 6,
-  verbose = FALSE
+  verbose = FALSE,
+  weights = NULL
 )
 }
 \arguments{
@@ -76,6 +77,8 @@ see polynomial.Lasso for more info.}
 \item{cb.depth}{The depth of the trees in CB}
 
 \item{verbose}{logical specifying whether to print progress}
+
+\item{weights}{is a vector containing survey weights adding up to 1}
 }
 \value{
 list containing ML attaining minimum RMSE and RMSE

@@ -24,7 +24,8 @@ MLtuning(
   xgb.max.depth.grid = c(1, 3, 6),
   cb.iterations.grid = c(100, 500, 1000),
   cb.depth.grid = c(1, 3, 6, 10),
-  verbose = FALSE
+  verbose = FALSE,
+  weights = NULL
 )
 }
 \arguments{
