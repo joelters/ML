@@ -249,6 +249,9 @@ modest <- function(X,
     names(dfens) = c("Y",OLSensemble)
     ols = lm(Y~., data = dfens)
     coefs = ols$coefficients
+    # take out models if there are NAs due to multicollinearity
+    OLSensemble <- OLSensemble[!is.na(coefs)[2:length(coefs)]]
+    coefs <- coefs[!is.na(coefs)]
     ms = lapply(OLSensemble, function(u){
       ML::modest(X, Y, ML = u,
                  rf.cf.ntree = rf.cf.ntree,
