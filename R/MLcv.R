@@ -86,7 +86,7 @@ MLcv <- function(X,
                       cb.iterations = cb.iterations,
                       cb.depth = cb.depth,
                       ensemblefolds = ensemblefolds,
-                      weights = weights)
+                      weights = weights[-ind[[i]]])
       if (u == "OLSensemble"){
         coefs = m$coefs
         m = m$models
