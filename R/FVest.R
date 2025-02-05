@@ -117,7 +117,7 @@ FVest <- function(model,
       stop("polynomial has to be an integer larger or equal than 1")
     }
     if (ncol(MM) > 2){
-      Xnew <- as.matrix(MM[,2:ncol(MM)])
+      Xnew <- as.matrix(MM[,2:ncol(MM), drop = FALSE])
     }
     else{
       Xnew <- MM
