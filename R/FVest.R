@@ -111,7 +111,7 @@ FVest <- function(model,
         A <- NULL
       }
       fml<- as.formula(paste("~(.)^",polynomial,sep=""))
-      MM <- cbind(stats::model.matrix(fml,Xnew),A)
+      MM <- as.matrix(cbind(stats::model.matrix(fml,Xnew),A))
     }
     else{
       stop("polynomial has to be an integer larger or equal than 1")
