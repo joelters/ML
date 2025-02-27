@@ -107,11 +107,15 @@ MLtuning <- function(X,
                                     polynomial.Logit_lasso = polynomial,
                                     polynomial.OLS = polynomial)
         }
-        data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2)))
+        list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2))), fvs = fv)
       })
-      res = do.call(rbind,res)
+      resMLrmse = lapply(1:length(res), function(uu){res[[uu]]$resMLrmse})
+      fvs = lapply(1:length(res), function(uu){res[[uu]]$fvs})
+      res = do.call(rbind,resMLrmse)
       res = data.frame(combs,res)
-    } else if (u == "RF"){
+      list(res = res, fvs = fvs)
+    }
+    else if (u == "RF"){
       if (!is.null(rf.depth.grid)){
         rf.depth.grid = c(rf.depth.grid,23101995)
       }
@@ -143,11 +147,15 @@ MLtuning <- function(X,
           fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
                                     X[ind[[i]],],Y[ind[[i]]],ML = u)
         }
-        data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2)))
+        list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2))), fvs = fv)
       })
-      res = do.call(rbind,res)
+      resMLrmse = lapply(1:length(res), function(uu){res[[uu]]$resMLrmse})
+      fvs = lapply(1:length(res), function(uu){res[[uu]]$fvs})
+      res = do.call(rbind,resMLrmse)
       res = data.frame(combs,res)
-    } else if (u == "CIF"){
+      list(res = res, fvs = fvs)
+    }
+    else if (u == "CIF"){
       if (max(floor(sqrt(ncol(X))),1) %in% mtry.grid == FALSE){
         mtry.grid = c(mtry.grid,max(floor(sqrt(ncol(X))),1))
       }
@@ -171,11 +179,15 @@ MLtuning <- function(X,
           fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
                                     X[ind[[i]],],Y[ind[[i]]],ML = u)
         }
-        data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2)))
+        list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2))), fvs = fv)
       })
-      res = do.call(rbind,res)
+      resMLrmse = lapply(1:length(res), function(uu){res[[uu]]$resMLrmse})
+      fvs = lapply(1:length(res), function(uu){res[[uu]]$fvs})
+      res = do.call(rbind,resMLrmse)
       res = data.frame(combs,res)
-    } else if (u == "XGB"){
+      list(res = res, fvs = fvs)
+    }
+    else if (u == "XGB"){
       combs = expand.grid(xgb.nrounds.grid,xgb.max.depth.grid)
       names(combs) = c("xgb.nrounds","xgb.max.depth")
       res = lapply(1:nrow(combs),function(j){
@@ -193,11 +205,15 @@ MLtuning <- function(X,
           fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
                                     X[ind[[i]],],Y[ind[[i]]],ML = u)
         }
-        data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2)))
+        list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2))), fvs = fv)
       })
-      res = do.call(rbind,res)
+      resMLrmse = lapply(1:length(res), function(uu){res[[uu]]$resMLrmse})
+      fvs = lapply(1:length(res), function(uu){res[[uu]]$fvs})
+      res = do.call(rbind,resMLrmse)
       res = data.frame(combs,res)
-    } else if (u == "CB"){
+      list(res = res, fvs = fvs)
+    }
+    else if (u == "CB"){
       combs = expand.grid(cb.iterations.grid,cb.depth.grid)
       names(combs) = c("cb.iterations","cb.depth")
       res = lapply(1:nrow(combs),function(j){
@@ -215,11 +231,15 @@ MLtuning <- function(X,
           fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
                                     X[ind[[i]],],Y[ind[[i]]],ML = u)
         }
-        data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2)))
+        list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2))), fvs = fv)
       })
-      res = do.call(rbind,res)
+      resMLrmse = lapply(1:length(res), function(uu){res[[uu]]$resMLrmse})
+      fvs = lapply(1:length(res), function(uu){res[[uu]]$fvs})
+      res = do.call(rbind,resMLrmse)
       res = data.frame(combs,res)
-    } else if (u == "OLSensemble"){
+      list(res = res, fvs = fvs)
+    }
+    else if (u == "OLSensemble"){
       res0 = lapply(OLSensemble, function(v){
         a = MLtuning(X = X,
                  Y = Y,
@@ -320,19 +340,27 @@ MLtuning <- function(X,
                                     polynomial.OLS = polynomial.OLS,
                                     coefs = coefs)
         }
-        data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2)))
+        list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2))), fvs = fv)
       })
-      res = do.call(rbind,res)
+      resMLrmse = lapply(1:length(res), function(uu){res[[uu]]$resMLrmse})
+      fvs = lapply(1:length(res), function(uu){res[[uu]]$fvs})
+      res = do.call(rbind,resMLrmse)
       res = data.frame(combs,res)
+      list(res = res, fvs = fvs)
     }
   })
   names(restuning) <- ML
   resbest = lapply(restuning, function(u){
-    u[which.min(u$rmse),]
+    list(u$res[which.min(u$res$rmse),],
+    u$fvs[[which.min(u$res$rmse)]])
   })
-  best.across.ML = resbest[[which.min(sapply(resbest,function(u){u$rmse}))]]
+  best.across.ML = resbest[[which.min(sapply(resbest,function(u){u[[1]]$rmse}))]]
+  best.res.across.ML = best.across.ML[[1]]
+  best.fvs.across.ML = best.across.ML[[2]]
 
-  return(list(results = restuning,
-              results_best = resbest,
-              best.across.ml = best.across.ML))
+  return(list(results = lapply(restuning, function(u){u$res}),
+              results_best = lapply(resbest, function(u){u[[1]]}),
+              fvs_best = lapply(resbest, function(u){u[[2]]}),
+              best.across.ml = best.res.across.ML,
+              best.fvs.across.ml = best.fvs.across.ML))
 }
