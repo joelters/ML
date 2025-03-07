@@ -7,8 +7,8 @@
 modest(
   X,
   Y,
-  ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Logit_lasso", "OLS", "grf", "SL",
-    "OLSensemble"),
+  ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Torch", "Logit_lasso", "OLS",
+    "grf", "SL", "OLSensemble"),
   OLSensemble,
   SL.library,
   rf.cf.ntree = 500,
@@ -23,6 +23,10 @@ modest(
   xgb.max.depth = 6,
   cb.iterations = 500,
   cb.depth = 6,
+  torch.epochs = 50,
+  torch.hidden_units = c(64, 32),
+  torch.lr = 0.01,
+  torch.dropout = 0.2,
   weights = NULL
 )
 }
@@ -67,6 +71,18 @@ methods such as OLSensemble or SuperLearner}
 \item{cb.iterations}{The maximum number of trees that can be built in CB}
 
 \item{cb.depth}{The depth of the trees in CB}
+
+\item{torch.epochs}{is an integer specifying the number of epochs (full passes through the dataset)
+to use when training the Torch neural network.}
+
+\item{torch.hidden_units}{is a numeric vector specifying the number of neurons
+in each hidden layer of the Torch neural network.}
+
+\item{torch.lr}{is a numeric value specifying the learning rate to be used for the
+optimizer when training the Torch neural network.}
+
+\item{torch.dropout}{is a numeric value between 0 and 1 specifying the dropout rate
+for regularization in the Torch neural network.}
 
 \item{weights}{is a vector containing survey weights adding up to 1}
 }

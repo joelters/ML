@@ -24,6 +24,10 @@ MLtuning(
   xgb.max.depth.grid = c(1, 3, 6),
   cb.iterations.grid = c(100, 500, 1000),
   cb.depth.grid = c(1, 3, 6, 10),
+  torch.hidden_units.grid = list(c(64, 32), c(128, 64), c(256, 128, 64)),
+  torch.lr.grid = c(0.001, 0.01, 0.1),
+  torch.dropout.grid = c(0.1, 0.2, 0.3),
+  torch.epochs.grid = c(50, 100),
   verbose = FALSE,
   weights = NULL
 )

@@ -54,7 +54,7 @@ FVest <- function(model,
                   Y,
                   Xnew = X,
                   Ynew = Y,
-                  ML = c("Lasso","Ridge","RF","CIF","XGB","CB",
+                  ML = c("Lasso","Ridge","RF","CIF","XGB","CB", "Torch",
                          "Logit_lasso","OLS","grf","SL","OLSensemble"),
                   polynomial.Lasso = 1,
                   polynomial.Ridge = 1,
@@ -195,6 +195,19 @@ FVest <- function(model,
     CB.data <- catboost::catboost.load_pool(Xnew,
                                             label = rep(0,nrow(Xnew)))
     FVs <- catboost::catboost.predict(model,CB.data)
+  }
+  else if (ML == "Torch") {
+    Xnew <- stats::model.matrix(~(.), Xnew)
+    # Convert Xnew into a Torch tensor
+    Xnew_tensor <- torch::torch_tensor(as.matrix(Xnew), dtype = torch::torch_float())
+
+    # Run forward pass through the trained model
+    FVs_tensor <- model(Xnew_tensor)
+
+    # Convert tensor output back to R numeric vector
+    FVs <- as.numeric(FVs_tensor$squeeze())
+
+    return(FVs)
   }
 
   else if (ML == "grf"){

@@ -60,6 +60,10 @@ MLtuning <- function(X,
                  xgb.max.depth.grid = c(1,3,6),
                  cb.iterations.grid = c(100,500,1000),
                  cb.depth.grid = c(1,3,6,10),
+                 torch.hidden_units.grid = list(c(64, 32), c(128, 64), c(256, 128, 64)),
+                 torch.lr.grid = c(0.001, 0.01, 0.1),
+                 torch.dropout.grid = c(0.1, 0.2, 0.3),
+                 torch.epochs.grid = c(50, 100),
                  verbose = FALSE,
                  weights = NULL){
   n <- length(Y)
@@ -227,6 +231,40 @@ MLtuning <- function(X,
           m <- ML::modest(X[-ind[[i]],],Y[-ind[[i]]],ML = u,
                           cb.iteration = cb.iterations,
                           cb.depth = cb.depth,
+                          weights = weights[-ind[[i]]])
+          fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
+                                    X[ind[[i]],],Y[ind[[i]]],ML = u)
+        }
+        list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2))), fvs = fv)
+      })
+      resMLrmse = lapply(1:length(res), function(uu){res[[uu]]$resMLrmse})
+      fvs = lapply(1:length(res), function(uu){res[[uu]]$fvs})
+      res = do.call(rbind,resMLrmse)
+      res = data.frame(combs,res)
+      list(res = res, fvs = fvs)
+    }
+    else if (u == "Torch"){
+      combs = expand.grid(I(torch.hidden_units.grid), # Keep lists intact
+                          torch.lr.grid,
+                          torch.dropout.grid,
+                          torch.epochs.grid)
+      names(combs) = c("torch.hidden_units","torch.lr",
+                       "torch.dropout", "torch.epochs")
+      res = lapply(1:nrow(combs),function(j){
+        torch.hidden_units = combs$torch.hidden_units[[j]]
+        torch.lr = combs$torch.lr[j]
+        torch.dropout = combs$torch.dropout[j]
+        torch.epochs = combs$torch.epochs[j]
+        fv <- rep(0,n)
+        for (i in 1:Kcv){
+          if (verbose == TRUE){
+            print(paste("Fold ",i, " of ", Kcv, " of ML ",u, sep = ""))
+          }
+          m <- ML::modest(X[-ind[[i]],],Y[-ind[[i]]],ML = u,
+                          torch.hidden_units = torch.hidden_units,
+                          torch.lr = torch.lr,
+                          torch.dropout = torch.dropout,
+                          torch.epochs = torch.epochs,
                           weights = weights[-ind[[i]]])
           fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
                                     X[ind[[i]],],Y[ind[[i]]],ML = u)

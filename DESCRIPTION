@@ -22,9 +22,11 @@ Imports:
     party,
     ranger,
     stats,
-    SuperLearner
+    SuperLearner,
+    torch
 Suggests: 
     catboost,
     testthat (>= 3.0.0),
+    torch,
     xgboost
 Config/testthat/edition: 3

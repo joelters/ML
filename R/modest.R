@@ -30,6 +30,14 @@
 #' @param xgb.max.depth is an integer specifying how deep trees should be grown in XGB
 #' @param cb.iterations The maximum number of trees that can be built in CB
 #' @param cb.depth The depth of the trees in CB
+#' @param torch.epochs is an integer specifying the number of epochs (full passes through the dataset)
+#' to use when training the Torch neural network.
+#' @param torch.hidden_units is a numeric vector specifying the number of neurons
+#' in each hidden layer of the Torch neural network.
+#' @param torch.lr is a numeric value specifying the learning rate to be used for the
+#' optimizer when training the Torch neural network.
+#' @param torch.dropout is a numeric value between 0 and 1 specifying the dropout rate
+#' for regularization in the Torch neural network.
 #' @param weights is a vector containing survey weights adding up to 1
 #' @returns the object that the machine learner package returns, in case of OLSensemble
 #' it returns the coefficients assigned to each machine learner in ensemble
@@ -50,7 +58,7 @@
 #' @export
 modest <- function(X,
                    Y,
-                   ML = c("Lasso","Ridge","RF","CIF","XGB","CB",
+                   ML = c("Lasso","Ridge","RF","CIF","XGB","CB", "Torch",
                           "Logit_lasso","OLS","grf","SL","OLSensemble"),
                    OLSensemble,
                    SL.library,
@@ -66,6 +74,10 @@ modest <- function(X,
                    xgb.max.depth = 6,
                    cb.iterations = 500,
                    cb.depth = 6,
+                   torch.epochs = 50,
+                   torch.hidden_units = c(64, 32),
+                   torch.lr = 0.01,
+                   torch.dropout = 0.2,
                    weights = NULL){
   Y <- as.numeric(Y)
   ML = match.arg(ML)
@@ -212,7 +224,48 @@ modest <- function(X,
                                           depth = cb.depth,
                                           logging_level = 'Silent'))
   }
+  else if (ML == "Torch"){
+    X <- stats::model.matrix(~ ., X)
+    # Convert data to tensors
+    X_tensor <- torch::torch_tensor(as.matrix(X), dtype = torch::torch_float())
+    Y_tensor <- torch::torch_tensor(as.matrix(Y), dtype = torch::torch_float())
 
+    # Define the Neural Network
+    model <- torch::nn_module(
+      initialize = function(input_size, hidden_units, dropout_rate) {
+        self$fc1 <- torch::nn_linear(input_size, hidden_units[1])
+        self$bn1 <- torch::nn_batch_norm1d(hidden_units[1])
+        self$fc2 <- torch::nn_linear(hidden_units[1], hidden_units[2])
+        self$bn2 <- torch::nn_batch_norm1d(hidden_units[2])
+        self$fc3 <- torch::nn_linear(hidden_units[2], 1)
+        self$dropout <- torch::nn_dropout(dropout_rate)
+      },
+      forward = function(x) {
+        x %>%
+          self$fc1() %>% self$bn1() %>% torch::nnf_relu() %>% self$dropout() %>%
+          self$fc2() %>% self$bn2() %>% torch::nnf_relu() %>% self$dropout() %>%
+          self$fc3()
+      }
+    )
+
+    # Instantiate the Model
+    net <- model(input_size = ncol(X), hidden_units = torch.hidden_units, dropout_rate = torch.dropout)
+
+    # Define Optimizer & Loss Function
+    optimizer <- torch::optim_adam(net$parameters, lr = torch.lr)
+    loss_fn <- torch::nn_mse_loss()
+
+    # Training Loop
+    for (epoch in 1:torch.epochs) {
+      optimizer$zero_grad()
+      output <- net(X_tensor)
+      loss <- loss_fn(output, Y_tensor)
+      loss$backward()
+      optimizer$step()
+    }
+    model <- net
+    return(model)  # Return trained model
+  }
   else if (ML == "grf"){
     model <- grf::regression_forest(X = X, Y = Y, sample.weights = weights)
   }
