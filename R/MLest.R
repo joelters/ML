@@ -28,10 +28,14 @@
 #' see polynomial.Lasso for more info.
 #' @param polynomial.OLS degree of polynomial to be fitted when using OLS,
 #' see polynomial.Lasso for more info.
+#' @param polynomial.NLLS_exp degree of polynomial to be fitted when using NLLS_exp,
+#' see polynomial.Lasso for more info.
 #' @param xgb.nrounds is an integer specifying how many rounds to use in XGB
 #' @param xgb.max.depth is an integer specifying how deep trees should be grown in XGB
 #' @param cb.iterations The maximum number of trees that can be built in CB
 #' @param cb.depth The depth of the trees in CB
+#' @param start_nlls List with the starting values of the parameters. Default is log(mean(Y))
+#' for the intercept and zero for all the rest.
 #' @param torch.epochs is an integer specifying the number of epochs (full passes through the dataset)
 #' to use when training the Torch neural network.
 #' @param torch.hidden_units is a numeric vector specifying the number of neurons
@@ -61,7 +65,7 @@
 MLest <- function(X,
                   Y,
                   ML = c("Lasso","Ridge","RF","CIF","XGB","CB", "Torch",
-                         "Logit_lasso","OLS","grf","SL","OLSensemble"),
+                         "Logit_lasso","OLS", "NLLS_exp", "grf","SL","OLSensemble"),
                   OLSensemble,
                   SL.library,
                   rf.cf.ntree = 500,
@@ -71,6 +75,8 @@ MLest <- function(X,
                   polynomial.Ridge = 1,
                   polynomial.Logit_lasso = 1,
                   polynomial.OLS = 1,
+                  polynomial.NLLS_exp = 1,
+                  start_nlls = NULL,
                   xgb.nrounds = 200,
                   xgb.max.depth = 6,
                   cb.iterations = 500,
@@ -113,6 +119,8 @@ MLest <- function(X,
                 polynomial.Ridge = polynomial.Ridge,
                 polynomial.Logit_lasso = polynomial.Logit_lasso,
                 polynomial.OLS = polynomial.OLS,
+                polynomial.NLLS_exp = polynomial.NLLS_exp,
+                start_nlls = start_nlls,
                 xgb.nrounds = xgb.nrounds,
                 xgb.max.depth = xgb.max.depth,
                 cb.iterations = cb.iterations,
@@ -132,6 +140,7 @@ MLest <- function(X,
                    polynomial.Ridge = polynomial.Ridge,
                    polynomial.Logit_lasso = polynomial.Logit_lasso,
                    polynomial.OLS = polynomial.OLS,
+                   polynomial.NLLS_exp = polynomial.NLLS_exp,
                    coefs = coefs)
       return(list("model" = m, "FVs" = FVs, "coefs" = coefs))
     }

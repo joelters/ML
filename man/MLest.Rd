@@ -8,7 +8,7 @@ MLest(
   X,
   Y,
   ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Torch", "Logit_lasso", "OLS",
-    "grf", "SL", "OLSensemble"),
+    "NLLS_exp", "grf", "SL", "OLSensemble"),
   OLSensemble,
   SL.library,
   rf.cf.ntree = 500,
@@ -18,6 +18,8 @@ MLest(
   polynomial.Ridge = 1,
   polynomial.Logit_lasso = 1,
   polynomial.OLS = 1,
+  polynomial.NLLS_exp = 1,
+  start_nlls = NULL,
   xgb.nrounds = 200,
   xgb.max.depth = 6,
   cb.iterations = 500,
@@ -65,6 +67,12 @@ see polynomial.Lasso for more info.}
 
 \item{polynomial.OLS}{degree of polynomial to be fitted when using OLS,
 see polynomial.Lasso for more info.}
+
+\item{polynomial.NLLS_exp}{degree of polynomial to be fitted when using NLLS_exp,
+see polynomial.Lasso for more info.}
+
+\item{start_nlls}{List with the starting values of the parameters. Default is log(mean(Y))
+for the intercept and zero for all the rest.}
 
 \item{xgb.nrounds}{is an integer specifying how many rounds to use in XGB}
 

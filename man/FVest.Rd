@@ -11,11 +11,12 @@ FVest(
   Xnew = X,
   Ynew = Y,
   ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Torch", "Logit_lasso", "OLS",
-    "grf", "SL", "OLSensemble"),
+    "NLLS_exp", "grf", "SL", "OLSensemble"),
   polynomial.Lasso = 1,
   polynomial.Ridge = 1,
   polynomial.Logit_lasso = 1,
   polynomial.OLS = 1,
+  polynomial.NLLS_exp = 1,
   coefs = NULL
 )
 }
@@ -50,6 +51,9 @@ see polynomial.Lasso for more info.}
 see polynomial.Lasso for more info.}
 
 \item{polynomial.OLS}{degree of polynomial to be fitted when using OLS,
+see polynomial.Lasso for more info.}
+
+\item{polynomial.NLLS_exp}{degree of polynomial to be fitted when using NLLS_exp,
 see polynomial.Lasso for more info.}
 
 \item{coefs}{optimal coefficients for OLSensemble, computed in modest}

@@ -28,6 +28,8 @@
 #' see polynomial.Lasso for more info.
 #' @param polynomial.OLS degree of polynomial to be fitted when using OLS,
 #' see polynomial.Lasso for more info.
+#' @param polynomial.NLLS_exp degree of polynomial to be fitted when using NLLS_exp,
+#' see polynomial.Lasso for more info.
 #' @param coefs optimal coefficients for OLSensemble, computed in modest
 #' @returns vector with fitted values
 #' @examples
@@ -54,12 +56,13 @@ FVest <- function(model,
                   Y,
                   Xnew = X,
                   Ynew = Y,
-                  ML = c("Lasso","Ridge","RF","CIF","XGB","CB", "Torch",
-                         "Logit_lasso","OLS","grf","SL","OLSensemble"),
+                  ML = c("Lasso","Ridge","RF","CIF","XGB","CB","Torch",
+                         "Logit_lasso","OLS","NLLS_exp", "grf","SL","OLSensemble"),
                   polynomial.Lasso = 1,
                   polynomial.Ridge = 1,
                   polynomial.Logit_lasso = 1,
                   polynomial.OLS = 1,
+                  polynomial.NLLS_exp = 1,
                   coefs = NULL){
   ML = match.arg(ML)
   Ynew <- as.numeric(Ynew)
@@ -76,7 +79,7 @@ FVest <- function(model,
   dta <- dplyr::as_tibble(cbind(Y = rep(0,nrow(Xnew)),Xnew))
   colnames(dta)[1] <- "Y"
 
-  if (ML == "Lasso" | ML == "Ridge" | ML == "Logit_lasso" | ML == "OLS"){
+  if (ML == "Lasso" | ML == "Ridge" | ML == "Logit_lasso" | ML == "OLS" | ML == "NLLS_exp"){
     if (ML == "Lasso"){
       polynomial = polynomial.Lasso
     }
@@ -88,6 +91,9 @@ FVest <- function(model,
     }
     else if (ML == "OLS"){
       polynomial = polynomial.OLS
+    }
+    else if (ML == "NLLS_exp"){
+      polynomial = polynomial.NLLS_exp
     }
     if (polynomial == 1){
       MM <- stats::model.matrix(~(.), Xnew)
@@ -135,7 +141,7 @@ FVest <- function(model,
     FVs = stats::predict(model, Xnew, s = lstar)
   }
 
-  else if (ML == "OLS"){
+  else if (ML == "OLS" | ML == "NLLS_exp"){
     FVs = stats::predict(model, data.frame(Xnew))
   }
 
@@ -200,6 +206,9 @@ FVest <- function(model,
     Xnew <- stats::model.matrix(~(.), Xnew)
     # Convert Xnew into a Torch tensor
     Xnew_tensor <- torch::torch_tensor(as.matrix(Xnew), dtype = torch::torch_float())
+
+    # Set the model to evaluation mode (disable dropout)
+    model$eval()
 
     # Run forward pass through the trained model
     FVs_tensor <- model(Xnew_tensor)

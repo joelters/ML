@@ -2,8 +2,8 @@
 #'
 #' `modest` estimates the model for a specified machine learner,
 #'  possible options are Lasso, Ridge, Random Forest, Conditional
-#' Inference Forest, Extreme Gradient Boosting, Catboosting, Logit Lasso
-#' or any combination of these using the SuperLearner package
+#' Inference Forest, Extreme Gradient Boosting, Catboosting, Logit Lasso,
+#' NLLS with exp(x'b) or any combination of these using the SuperLearner package
 #'
 #' @param X is a dataframe containing all the features
 #' @param Y is a vector containing the label
@@ -24,12 +24,16 @@
 #' see polynomial.Lasso for more info.
 #' @param polynomial.OLS degree of polynomial to be fitted when using OLS,
 #' see polynomial.Lasso for more info.
+#' @param polynomial.NLLS_exp degree of polynomial to be fitted when using NLLS_exp,
+#' see polynomial.Lasso for more info.
 #' @param ensemblefolds is an integer specifying how many folds to use in ensemble
 #' methods such as OLSensemble or SuperLearner
 #' @param xgb.nrounds is an integer specifying how many rounds to use in XGB
 #' @param xgb.max.depth is an integer specifying how deep trees should be grown in XGB
 #' @param cb.iterations The maximum number of trees that can be built in CB
 #' @param cb.depth The depth of the trees in CB
+#' @param start_nlls List with the starting values of the parameters. Default is log(mean(Y))
+#' for the intercept and zero for all the rest.
 #' @param torch.epochs is an integer specifying the number of epochs (full passes through the dataset)
 #' to use when training the Torch neural network.
 #' @param torch.hidden_units is a numeric vector specifying the number of neurons
@@ -59,7 +63,7 @@
 modest <- function(X,
                    Y,
                    ML = c("Lasso","Ridge","RF","CIF","XGB","CB", "Torch",
-                          "Logit_lasso","OLS","grf","SL","OLSensemble"),
+                          "NLLS_exp", "Logit_lasso","OLS","grf","SL","OLSensemble"),
                    OLSensemble,
                    SL.library,
                    rf.cf.ntree = 500,
@@ -69,6 +73,8 @@ modest <- function(X,
                    polynomial.Ridge = 1,
                    polynomial.Logit_lasso = 1,
                    polynomial.OLS = 1,
+                   polynomial.NLLS_exp = 1,
+                   start_nlls = NULL,
                    ensemblefolds = 10,
                    xgb.nrounds = 200,
                    xgb.max.depth = 6,
@@ -88,7 +94,7 @@ modest <- function(X,
     X <- data.frame(X)
   }
 
-  if (ML == "Lasso" | ML == "Ridge" | ML == "Logit_lasso" | ML == "OLS"){
+  if (ML == "Lasso" | ML == "Ridge" | ML == "Logit_lasso" | ML == "OLS" | ML == "NLLS_exp"){
     if (ML == "Lasso"){
       polynomial = polynomial.Lasso
     }
@@ -100,6 +106,9 @@ modest <- function(X,
     }
     else if (ML == "OLS"){
       polynomial = polynomial.OLS
+    }
+    else if (ML == "NLLS_exp"){
+      polynomial = polynomial.NLLS_exp
     }
     if (polynomial == 1){
       MM <- stats::model.matrix(~(.), X)
@@ -268,6 +277,22 @@ modest <- function(X,
   }
   else if (ML == "grf"){
     model <- grf::regression_forest(X = X, Y = Y, sample.weights = weights)
+  }
+  else if (ML == "NLLS_exp"){
+    regs = colnames(X)
+    params <- paste0("beta", seq_along(regs))
+    names(params) <- regs
+    formula_str <- paste0("Y ~ exp(beta0 +", paste(params, regs, sep = "*", collapse = " + "), ")")
+    nls_formula = as.formula(formula_str)
+    if (is.null(start_nlls) == TRUE){
+      start_nlls <- as.list(c(log(mean(Y)), rep(0, length(params))))
+      names(start_nlls) = paste0("beta", seq_along(c(1,regs)) - 1)
+    }
+    else {
+      names(start_nlls) = paste0("beta", seq_along(c(1,regs)) - 1)
+    }
+    model = stats::nls(formula = nls_formula, data = data.frame(Y = Y, X),
+                       start = start_nlls, weights = weights)
   }
 
   else if(ML == "OLSensemble"){
