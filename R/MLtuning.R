@@ -45,6 +45,7 @@ MLtuning <- function(X,
                  Y,
                  ML = c("Lasso","Ridge","RF","CIF","XGB","CB",
                         "Logit_lasso","OLS","grf","OLSensemble"),
+                 var_penalization = 0,
                  OLSensemble,
                  SL.library,
                  Kcv = 5,
@@ -111,7 +112,7 @@ MLtuning <- function(X,
                                     polynomial.Logit_lasso = polynomial,
                                     polynomial.OLS = polynomial)
         }
-        list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2))), fvs = fv)
+        list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2) + var_penalization*var(fv))), fvs = fv)
       })
       resMLrmse = lapply(1:length(res), function(uu){res[[uu]]$resMLrmse})
       fvs = lapply(1:length(res), function(uu){res[[uu]]$fvs})
@@ -151,7 +152,7 @@ MLtuning <- function(X,
           fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
                                     X[ind[[i]],],Y[ind[[i]]],ML = u)
         }
-        list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2))), fvs = fv)
+        list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2) + var_penalization*var(fv))), fvs = fv)
       })
       resMLrmse = lapply(1:length(res), function(uu){res[[uu]]$resMLrmse})
       fvs = lapply(1:length(res), function(uu){res[[uu]]$fvs})
@@ -183,7 +184,7 @@ MLtuning <- function(X,
           fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
                                     X[ind[[i]],],Y[ind[[i]]],ML = u)
         }
-        list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2))), fvs = fv)
+        list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2) + var_penalization*var(fv))), fvs = fv)
       })
       resMLrmse = lapply(1:length(res), function(uu){res[[uu]]$resMLrmse})
       fvs = lapply(1:length(res), function(uu){res[[uu]]$fvs})
@@ -209,7 +210,7 @@ MLtuning <- function(X,
           fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
                                     X[ind[[i]],],Y[ind[[i]]],ML = u)
         }
-        list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2))), fvs = fv)
+        list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2) + var_penalization*var(fv))), fvs = fv)
       })
       resMLrmse = lapply(1:length(res), function(uu){res[[uu]]$resMLrmse})
       fvs = lapply(1:length(res), function(uu){res[[uu]]$fvs})
@@ -235,7 +236,7 @@ MLtuning <- function(X,
           fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
                                     X[ind[[i]],],Y[ind[[i]]],ML = u)
         }
-        list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2))), fvs = fv)
+        list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2) + var_penalization*var(fv))), fvs = fv)
       })
       resMLrmse = lapply(1:length(res), function(uu){res[[uu]]$resMLrmse})
       fvs = lapply(1:length(res), function(uu){res[[uu]]$fvs})
@@ -269,7 +270,7 @@ MLtuning <- function(X,
           fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
                                     X[ind[[i]],],Y[ind[[i]]],ML = u)
         }
-        list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2))), fvs = fv)
+        list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2) + var_penalization*var(fv))), fvs = fv)
       })
       resMLrmse = lapply(1:length(res), function(uu){res[[uu]]$resMLrmse})
       fvs = lapply(1:length(res), function(uu){res[[uu]]$fvs})
@@ -378,7 +379,7 @@ MLtuning <- function(X,
                                     polynomial.OLS = polynomial.OLS,
                                     coefs = coefs)
         }
-        list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2))), fvs = fv)
+        list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2) + var_penalization*var(fv))), fvs = fv)
       })
       resMLrmse = lapply(1:length(res), function(uu){res[[uu]]$resMLrmse})
       fvs = lapply(1:length(res), function(uu){res[[uu]]$fvs})

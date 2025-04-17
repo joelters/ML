@@ -9,6 +9,7 @@ MLtuning(
   Y,
   ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Logit_lasso", "OLS", "grf",
     "OLSensemble"),
+  var_penalization = 0,
   OLSensemble,
   SL.library,
   Kcv = 5,
