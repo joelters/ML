@@ -17,6 +17,7 @@
 #' should be used in SuperLearner
 #' @param rf.cf.ntree how many trees should be grown when using RF or CIF
 #' @param rf.depth how deep should trees be grown in RF (NULL is default from ranger)
+#' @param cf.depth how deep should trees be grown in CIF (Inf is default from partykit)
 #' @param mtry how many variables to consider at each split in RF
 #' @param polynomial.Lasso degree of polynomial to be fitted when using Lasso.
 #' 1 just fits the input X. 2 squares all variables and adds
@@ -71,6 +72,7 @@ MLest <- function(X,
                   rf.cf.ntree = 500,
                   rf.depth = NULL,
                   mtry = max(floor(ncol(X)/3), 1),
+                  cf.depth = Inf,
                   polynomial.Lasso = 1,
                   polynomial.Ridge = 1,
                   polynomial.Logit_lasso = 1,
@@ -115,6 +117,7 @@ MLest <- function(X,
                 rf.cf.ntree = rf.cf.ntree,
                 rf.depth = rf.depth,
                 mtry = mtry,
+                cf.depth = cf.depth,
                 polynomial.Lasso = polynomial.Lasso,
                 polynomial.Ridge = polynomial.Ridge,
                 polynomial.Logit_lasso = polynomial.Logit_lasso,

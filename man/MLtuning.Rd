@@ -16,6 +16,7 @@ MLtuning(
   rf.cf.ntree.grid = c(100, 300, 500),
   rf.depth.grid = c(2, 4, 6, 10),
   mtry.grid = c(1, 3, 5),
+  cf.depth.grid = c(2, 4, 6, 10),
   ensemblefolds.grid = c(2, 5),
   polynomial.Lasso.grid = c(1, 2, 3),
   polynomial.Ridge.grid = c(1, 2, 3),
@@ -79,6 +80,8 @@ see polynomial.Lasso for more info.}
 \item{xgb.max.depth.grid}{is an integer specifying how deep trees should be grown in XGB}
 
 \item{verbose}{logical specifying whether to print progress}
+
+\item{cf.depth}{how deep should trees be grown in CIF (Inf is default from partykit)}
 
 \item{cb.iterations}{The maximum number of trees that can be built in CB}
 

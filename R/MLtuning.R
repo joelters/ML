@@ -20,6 +20,7 @@
 #' @param rf.depth.grid how deep should trees be grown in RF (NULL is always tried)
 #' @param mtry.grid how many variables to consider at each split in RF,
 #' defaults floor(sqrt(ncol(X))) and floor(ncol(X)/3) are always tried
+#' @param cf.depth how deep should trees be grown in CIF (Inf is default from partykit)
 #' @param ensemblefolds.grid is an integer specifying how many folds to use in ensemble
 #' methods such as OLSensemble or SuperLearner
 #' @param polynomial.Lasso.grid degree of polynomial to be fitted when using Lasso.
@@ -52,6 +53,7 @@ MLtuning <- function(X,
                  rf.cf.ntree.grid = c(100,300,500),
                  rf.depth.grid = c(2,4,6,10),
                  mtry.grid = c(1,3,5),
+                 cf.depth.grid = c(2,4,6,10),
                  ensemblefolds.grid = c(2,5),
                  polynomial.Lasso.grid = c(1,2,3),
                  polynomial.Ridge.grid = c(1,2,3),
@@ -161,17 +163,22 @@ MLtuning <- function(X,
       list(res = res, fvs = fvs)
     }
     else if (u == "CIF"){
+      `%notin%` <- Negate(`%in%`)
+      if (Inf %notin% cf.depth.grid){
+        cf.depth.grid = c(cf.depth.grid,23101995)
+      }
       if (max(floor(sqrt(ncol(X))),1) %in% mtry.grid == FALSE){
         mtry.grid = c(mtry.grid,max(floor(sqrt(ncol(X))),1))
       }
       if (max(floor(ncol(X)/3),1) %in% mtry.grid == FALSE){
         mtry.grid = c(mtry.grid,max(floor(ncol(X)/3),1))
       }
-      combs = expand.grid(rf.cf.ntree.grid,mtry.grid)
-      names(combs) = c("rf.cf.ntree","mtry")
+      combs = expand.grid(rf.cf.ntree.grid,mtry.grid,cf.depth.grid)
+      names(combs) = c("rf.cf.ntree","mtry","cf.depth")
       res = lapply(1:nrow(combs),function(j){
         rf.cf.ntree = combs$rf.cf.ntree[j]
         mtry = combs$mtry[j]
+        cf.depth = combs$cf.depth[j]
         fv <- rep(0,n)
         for (i in 1:Kcv){
           if (verbose == TRUE){
@@ -180,6 +187,7 @@ MLtuning <- function(X,
           m <- ML::modest(X[-ind[[i]],],Y[-ind[[i]]],ML = u,
                           rf.cf.ntree = rf.cf.ntree,
                           mtry = mtry,
+                          cf.depth = cf.depth,
                           weights = weights[-ind[[i]]])
           fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
                                     X[ind[[i]],],Y[ind[[i]]],ML = u)
@@ -287,6 +295,7 @@ MLtuning <- function(X,
                  rf.cf.ntree.grid = rf.cf.ntree.grid,
                  rf.depth.grid = rf.depth.grid,
                  mtry.grid = mtry.grid,
+                 cf.depth.grid = cf.depth.grid,
                  polynomial.Lasso.grid = polynomial.Lasso.grid,
                  polynomial.Ridge.grid = polynomial.Ridge.grid,
                  polynomial.Logit_lasso.grid = polynomial.Logit_lasso.grid,
@@ -329,6 +338,14 @@ MLtuning <- function(X,
       if ("mtry" %notin% ls()){
         mtry = 1
       }
+      if ("rf.depth" %in% ls()){
+        if (rf.depth == 23101995){
+          rf.depth = Inf
+        }
+      }
+      if ("rf.depth" %notin% ls()){
+        rf.depth = Inf
+      }
       if ("xgb.nrounds" %notin% ls()){
         xgb.nrounds = 200
       }
@@ -362,6 +379,7 @@ MLtuning <- function(X,
                           polynomial.Logit_lasso = polynomial.Logit_lasso,
                           polynomial.OLS = polynomial.OLS,
                           mt = mtry,
+                          cf.depth = cf.depth,
                           xgb.nrounds = xgb.nrounds,
                           xgb.max.depth = xgb.max.depth,
                           cb.iterations = cb.iterations,

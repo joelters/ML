@@ -19,7 +19,7 @@ Imports:
     dplyr,
     glmnet,
     grf,
-    party,
+    partykit,
     ranger,
     stats,
     SuperLearner,

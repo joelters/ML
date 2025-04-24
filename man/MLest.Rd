@@ -14,6 +14,7 @@ MLest(
   rf.cf.ntree = 500,
   rf.depth = NULL,
   mtry = max(floor(ncol(X)/3), 1),
+  cf.depth = Inf,
   polynomial.Lasso = 1,
   polynomial.Ridge = 1,
   polynomial.Logit_lasso = 1,
@@ -53,6 +54,8 @@ should be used in SuperLearner}
 \item{rf.depth}{how deep should trees be grown in RF (NULL is default from ranger)}
 
 \item{mtry}{how many variables to consider at each split in RF}
+
+\item{cf.depth}{how deep should trees be grown in CIF (Inf is default from partykit)}
 
 \item{polynomial.Lasso}{degree of polynomial to be fitted when using Lasso.
 1 just fits the input X. 2 squares all variables and adds
