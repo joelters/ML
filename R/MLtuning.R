@@ -17,10 +17,12 @@
 #' should be used in SuperLearner
 #' @param Kcv number of folds in cross-validation
 #' @param rf.cf.ntree.grid how many trees should be grown when using RF or CIF
-#' @param rf.depth.grid how deep should trees be grown in RF (NULL is always tried)
+#' @param rf.depth.grid how deep should trees be grown in RF, Inf means full depth
+#' (NULL in ranger)
 #' @param mtry.grid how many variables to consider at each split in RF,
 #' defaults floor(sqrt(ncol(X))) and floor(ncol(X)/3) are always tried
-#' @param cf.depth how deep should trees be grown in CIF (Inf is default from partykit)
+#' @param cf.depth how deep should trees be grown in CIF (Inf is full depth,
+#' default from partykit)
 #' @param ensemblefolds.grid is an integer specifying how many folds to use in ensemble
 #' methods such as OLSensemble or SuperLearner
 #' @param polynomial.Lasso.grid degree of polynomial to be fitted when using Lasso.
@@ -51,9 +53,9 @@ MLtuning <- function(X,
                  SL.library,
                  Kcv = 5,
                  rf.cf.ntree.grid = c(100,300,500),
-                 rf.depth.grid = c(2,4,6,10),
+                 rf.depth.grid = c(2,4,6,Inf),
                  mtry.grid = c(1,3,5),
-                 cf.depth.grid = c(2,4,6,10),
+                 cf.depth.grid = c(2,4,6,Inf),
                  ensemblefolds.grid = c(2,5),
                  polynomial.Lasso.grid = c(1,2,3),
                  polynomial.Ridge.grid = c(1,2,3),
@@ -123,21 +125,12 @@ MLtuning <- function(X,
       list(res = res, fvs = fvs)
     }
     else if (u == "RF"){
-      if (!is.null(rf.depth.grid)){
-        rf.depth.grid = c(rf.depth.grid,23101995)
-      }
-      if (max(floor(sqrt(ncol(X))),1) %in% mtry.grid == FALSE){
-        mtry.grid = c(mtry.grid,max(floor(sqrt(ncol(X))),1))
-      }
-      if (max(floor(ncol(X)/3),1) %in% mtry.grid == FALSE){
-        mtry.grid = c(mtry.grid,max(floor(ncol(X)/3),1))
-      }
       combs = expand.grid(rf.cf.ntree.grid,rf.depth.grid,mtry.grid)
       names(combs) = c("rf.cf.ntree","rf.depth","mtry")
       res = lapply(1:nrow(combs),function(j){
         rf.cf.ntree = combs$rf.cf.ntree[j]
         rf.depth = combs$rf.depth[j]
-        if (rf.depth == 23101995){
+        if (rf.depth == Inf){
           rf.depth = NULL
         }
         mtry = combs$mtry[j]
@@ -163,16 +156,6 @@ MLtuning <- function(X,
       list(res = res, fvs = fvs)
     }
     else if (u == "CIF"){
-      `%notin%` <- Negate(`%in%`)
-      if (Inf %notin% cf.depth.grid){
-        cf.depth.grid = c(cf.depth.grid,23101995)
-      }
-      if (max(floor(sqrt(ncol(X))),1) %in% mtry.grid == FALSE){
-        mtry.grid = c(mtry.grid,max(floor(sqrt(ncol(X))),1))
-      }
-      if (max(floor(ncol(X)/3),1) %in% mtry.grid == FALSE){
-        mtry.grid = c(mtry.grid,max(floor(ncol(X)/3),1))
-      }
       combs = expand.grid(rf.cf.ntree.grid,mtry.grid,cf.depth.grid)
       names(combs) = c("rf.cf.ntree","mtry","cf.depth")
       res = lapply(1:nrow(combs),function(j){
@@ -328,7 +311,7 @@ MLtuning <- function(X,
         rf.cf.ntree = 500
       }
       if ("rf.depth" %in% ls()){
-        if (rf.depth == 23101995){
+        if (rf.depth == Inf){
           rf.depth = NULL
         }
       }
@@ -338,13 +321,8 @@ MLtuning <- function(X,
       if ("mtry" %notin% ls()){
         mtry = 1
       }
-      if ("rf.depth" %in% ls()){
-        if (rf.depth == 23101995){
-          rf.depth = Inf
-        }
-      }
-      if ("rf.depth" %notin% ls()){
-        rf.depth = Inf
+      if ("cf.depth" %notin% ls()){
+        cf.depth = Inf
       }
       if ("xgb.nrounds" %notin% ls()){
         xgb.nrounds = 200

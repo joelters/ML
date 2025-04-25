@@ -14,9 +14,9 @@ MLtuning(
   SL.library,
   Kcv = 5,
   rf.cf.ntree.grid = c(100, 300, 500),
-  rf.depth.grid = c(2, 4, 6, 10),
+  rf.depth.grid = c(2, 4, 6, Inf),
   mtry.grid = c(1, 3, 5),
-  cf.depth.grid = c(2, 4, 6, 10),
+  cf.depth.grid = c(2, 4, 6, Inf),
   ensemblefolds.grid = c(2, 5),
   polynomial.Lasso.grid = c(1, 2, 3),
   polynomial.Ridge.grid = c(1, 2, 3),
@@ -53,7 +53,8 @@ should be used in SuperLearner}
 
 \item{rf.cf.ntree.grid}{how many trees should be grown when using RF or CIF}
 
-\item{rf.depth.grid}{how deep should trees be grown in RF (NULL is always tried)}
+\item{rf.depth.grid}{how deep should trees be grown in RF, Inf means full depth
+(NULL in ranger)}
 
 \item{mtry.grid}{how many variables to consider at each split in RF,
 defaults floor(sqrt(ncol(X))) and floor(ncol(X)/3) are always tried}
@@ -81,7 +82,8 @@ see polynomial.Lasso for more info.}
 
 \item{verbose}{logical specifying whether to print progress}
 
-\item{cf.depth}{how deep should trees be grown in CIF (Inf is default from partykit)}
+\item{cf.depth}{how deep should trees be grown in CIF (Inf is full depth,
+default from partykit)}
 
 \item{cb.iterations}{The maximum number of trees that can be built in CB}
 
