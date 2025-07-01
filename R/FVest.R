@@ -103,28 +103,48 @@ FVest <- function(model,
       polynomial = polynomial.loglin
     }
     if (polynomial == 1){
-      MM <- stats::model.matrix(~(.), Xnew)
+      if(ncol(X) == 0){
+        X = data.frame(rep(1,nrow(X)))
+      }
+      MM <- stats::model.matrix(~(.), X)
+      if(ncol(X) == 1 & var(X[,1]) == 0){
+        aa = as.matrix(MM[,1])
+        colnames(aa) = colnames(MM)[1]
+        MM = aa
+      }
     }
     else if (polynomial >= 2){
-      M <- stats::model.matrix(~(.), Xnew)
-      M2 <- as.matrix(M[,2:ncol(M)])
-      if (ncol(M) == 2){
-        colnames(M2) <- colnames(M)[2]
+      if(ncol(X) == 0){
+        X = data.frame(rep(1,nrow(X)))
       }
-      M <- M2
-      Mnon01 <- colnames(M)[!apply(M,2,function(u){all(u %in% 0:1)})]
-      if (length(Mnon01) != 0){
-        A <- lapply(2:polynomial, function(u){
-          B <- M[,Mnon01]^u
-        })
-        A <- do.call(cbind,A)
-        colnames(A) <- c(sapply(2:polynomial, function(u){paste(Mnon01,"tothe",u,sep = "")}))
+      M <- stats::model.matrix(~(.), X)
+      if(ncol(X) == 1 & var(X[,1]) == 0){
+        aa = as.matrix(M[,1])
+        colnames(aa) = colnames(M)[1]
+        M = aa
       }
-      else{
-        A <- NULL
+      if (ncol(M) == 1){
+        MM = M
+      } else{
+        M2 <- as.matrix(M[,2:ncol(M)])
+        if (ncol(M) == 2){
+          colnames(M2) <- colnames(M)[2]
+        }
+        M <- M2
+        Mnon01 <- colnames(M)[!apply(M,2,function(u){all(u %in% 0:1)})]
+        if (length(Mnon01) != 0){
+          A <- lapply(2:polynomial, function(u){
+            B <- M[,Mnon01]^u
+          })
+          A <- do.call(cbind,A)
+          colnames(A) <- c(sapply(2:polynomial, function(u){paste(Mnon01,"tothe",u,sep = "")}))
+        }
+        else{
+          A <- NULL
+        }
+        fml<- as.formula(paste("~(.)^",polynomial,sep=""))
+        MM <- cbind(stats::model.matrix(fml,X),A)
       }
-      fml<- as.formula(paste("~(.)^",polynomial,sep=""))
-      MM <- as.matrix(cbind(stats::model.matrix(fml,Xnew),A))
     }
     else{
       stop("polynomial has to be an integer larger or equal than 1")

@@ -122,28 +122,48 @@ modest <- function(X,
       polynomial = polynomial.loglin
     }
     if (polynomial == 1){
+      if(ncol(X) == 0){
+        X = data.frame(rep(1,nrow(X)))
+      }
       MM <- stats::model.matrix(~(.), X)
+      if(ncol(X) == 1 & var(X[,1]) == 0){
+        aa = as.matrix(MM[,1])
+        colnames(aa) = colnames(MM)[1]
+        MM = aa
+      }
     }
     else if (polynomial >= 2){
+      if(ncol(X) == 0){
+        X = data.frame(rep(1,nrow(X)))
+      }
       M <- stats::model.matrix(~(.), X)
-      M2 <- as.matrix(M[,2:ncol(M)])
-      if (ncol(M) == 2){
-        colnames(M2) <- colnames(M)[2]
+      if(ncol(X) == 1 & var(X[,1]) == 0){
+        aa = as.matrix(M[,1])
+        colnames(aa) = colnames(M)[1]
+        M = aa
       }
-      M <- M2
-      Mnon01 <- colnames(M)[!apply(M,2,function(u){all(u %in% 0:1)})]
-      if (length(Mnon01) != 0){
-        A <- lapply(2:polynomial, function(u){
-          B <- M[,Mnon01]^u
-        })
-        A <- do.call(cbind,A)
-        colnames(A) <- c(sapply(2:polynomial, function(u){paste(Mnon01,"tothe",u,sep = "")}))
+      if (ncol(M) == 1){
+        MM = M
+      } else{
+        M2 <- as.matrix(M[,2:ncol(M)])
+        if (ncol(M) == 2){
+          colnames(M2) <- colnames(M)[2]
+        }
+        M <- M2
+        Mnon01 <- colnames(M)[!apply(M,2,function(u){all(u %in% 0:1)})]
+        if (length(Mnon01) != 0){
+          A <- lapply(2:polynomial, function(u){
+            B <- M[,Mnon01]^u
+          })
+          A <- do.call(cbind,A)
+          colnames(A) <- c(sapply(2:polynomial, function(u){paste(Mnon01,"tothe",u,sep = "")}))
+        }
+        else{
+          A <- NULL
+        }
+        fml<- as.formula(paste("~(.)^",polynomial,sep=""))
+        MM <- cbind(stats::model.matrix(fml,X),A)
       }
-      else{
-        A <- NULL
-      }
-      fml<- as.formula(paste("~(.)^",polynomial,sep=""))
-      MM <- cbind(stats::model.matrix(fml,X),A)
     }
     else{
       stop("polynomial has to be an integer larger or equal than 1")
@@ -295,20 +315,30 @@ modest <- function(X,
     model <- grf::regression_forest(X = X, Y = Y, sample.weights = weights)
   }
   else if (ML == "NLLS_exp"){
-    regs = colnames(X)
-    params <- paste0("beta", seq_along(regs))
-    names(params) <- regs
-    formula_str <- paste0("Y ~ exp(beta0 +", paste(params, regs, sep = "*", collapse = " + "), ")")
-    nls_formula = as.formula(formula_str)
-    if (is.null(start_nlls) == TRUE){
-      start_nlls <- as.list(c(log(mean(Y)), rep(0, length(params))))
-      names(start_nlls) = paste0("beta", seq_along(c(1,regs)) - 1)
+    if (ncol(X) == 1 & var(X[,1]) == 0){
+      nls_formula <- Y ~ exp(beta0)
+      start_nlls <- list(beta0 = log(mean(Y)))
+    } else{
+      regs = colnames(X)
+      params <- paste0("beta", seq_along(regs))
+      names(params) <- regs
+      formula_str <- paste0("Y ~ exp(beta0 +", paste(params, regs, sep = "*", collapse = " + "), ")")
+      nls_formula = as.formula(formula_str)
+      if (is.null(start_nlls) == TRUE){
+        start_nlls <- as.list(c(log(mean(Y)), rep(0, length(params))))
+        names(start_nlls) = paste0("beta", seq_along(c(1,regs)) - 1)
+      }
+      else {
+        names(start_nlls) = paste0("beta", seq_along(c(1,regs)) - 1)
+      }
     }
-    else {
-      names(start_nlls) = paste0("beta", seq_along(c(1,regs)) - 1)
+    if(is.null(weights)){
+      model = stats::nls(formula = nls_formula, data = data.frame(Y = Y, X),
+                         start = start_nlls)
+    } else{
+      model = stats::nls(formula = nls_formula, data = data.frame(Y = Y, X),
+                         start = start_nlls, weights = weights)
     }
-    model = stats::nls(formula = nls_formula, data = data.frame(Y = Y, X),
-                       start = start_nlls, weights = weights)
   }
 
   else if(ML == "OLSensemble"){
