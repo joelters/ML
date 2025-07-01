@@ -7,8 +7,8 @@
 MLtuning(
   X,
   Y,
-  ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Logit_lasso", "OLS", "grf",
-    "OLSensemble"),
+  ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Logit_lasso", "OLS", "NLLS_exp",
+    "loglin", "grf", "OLSensemble"),
   var_penalization = 0,
   OLSensemble,
   SL.library,
@@ -22,6 +22,8 @@ MLtuning(
   polynomial.Ridge.grid = c(1, 2, 3),
   polynomial.Logit_lasso.grid = c(1, 2, 3),
   polynomial.OLS.grid = c(1, 2, 3),
+  polynomial.loglin.grid = c(1, 2, 3),
+  polynomial.NLLS_exp.grid = c(1, 2, 3),
   xgb.nrounds.grid = c(100, 200, 500),
   xgb.max.depth.grid = c(1, 3, 6),
   cb.iterations.grid = c(100, 500, 1000),
@@ -76,6 +78,9 @@ see polynomial.Lasso for more info.}
 \item{polynomial.OLS.grid}{degree of polynomial to be fitted when using OLS,
 see polynomial.Lasso for more info.}
 
+\item{polynomial.NLLS_exp.grid}{degree of polynomial to be fitted when using OLS,
+see polynomial.Lasso for more info.}
+
 \item{xgb.nrounds.grid}{is an integer specifying how many rounds to use in XGB}
 
 \item{xgb.max.depth.grid}{is an integer specifying how deep trees should be grown in XGB}
@@ -84,6 +89,9 @@ see polynomial.Lasso for more info.}
 
 \item{cf.depth}{how deep should trees be grown in CIF (Inf is full depth,
 default from partykit)}
+
+\item{polynomial.loglin}{degree of polynomial to be fitted when using loglin,
+see polynomial.Lasso for more info.}
 
 \item{cb.iterations}{The maximum number of trees that can be built in CB}
 

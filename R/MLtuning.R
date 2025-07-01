@@ -35,6 +35,10 @@
 #' see polynomial.Lasso for more info.
 #' @param polynomial.OLS.grid degree of polynomial to be fitted when using OLS,
 #' see polynomial.Lasso for more info.
+#' @param polynomial.NLLS_exp.grid degree of polynomial to be fitted when using OLS,
+#' see polynomial.Lasso for more info.
+#' @param polynomial.loglin degree of polynomial to be fitted when using loglin,
+#' see polynomial.Lasso for more info.
 #' @param xgb.nrounds.grid is an integer specifying how many rounds to use in XGB
 #' @param xgb.max.depth.grid is an integer specifying how deep trees should be grown in XGB
 #' @param cb.iterations The maximum number of trees that can be built in CB
@@ -47,7 +51,8 @@
 MLtuning <- function(X,
                  Y,
                  ML = c("Lasso","Ridge","RF","CIF","XGB","CB",
-                        "Logit_lasso","OLS","grf","OLSensemble"),
+                        "Logit_lasso","OLS", "NLLS_exp",
+                        "loglin", "grf","OLSensemble"),
                  var_penalization = 0,
                  OLSensemble,
                  SL.library,
@@ -61,6 +66,8 @@ MLtuning <- function(X,
                  polynomial.Ridge.grid = c(1,2,3),
                  polynomial.Logit_lasso.grid = c(1,2,3),
                  polynomial.OLS.grid = c(1,2,3),
+                 polynomial.loglin.grid = c(1,2,3),
+                 polynomial.NLLS_exp.grid = c(1,2,3),
                  xgb.nrounds.grid = c(100,200,500),
                  xgb.max.depth.grid = c(1,3,6),
                  cb.iterations.grid = c(100,500,1000),
@@ -75,7 +82,8 @@ MLtuning <- function(X,
   X <- dplyr::as_tibble(X)
   ind <- split(seq(n), seq(n) %% Kcv)
   restuning <- lapply(ML,function(u){
-    if (u == "Lasso" | u == "Ridge" | u == "Logit_lasso" | u == "OLS"){
+    if (u == "Lasso" | u == "Ridge" | u == "Logit_lasso" | u == "OLS" |
+        u == "NLLS_exp" | u == "loglin"){
       if (u == "Lasso"){
         polynomial.grid = polynomial.Lasso.grid
         combs = expand.grid(polynomial.grid)
@@ -96,6 +104,16 @@ MLtuning <- function(X,
         combs = expand.grid(polynomial.grid)
         names(combs) = "polynomial.OLS"
       }
+      else if (u == "NLLS_exp"){
+        polynomial.grid = polynomial.NLLS_exp.grid
+        combs = expand.grid(polynomial.grid)
+        names(combs) = "polynomial.NLLS_exp"
+      }
+      else if (u == "loglin"){
+        polynomial.grid = polynomial.loglin.grid
+        combs = expand.grid(polynomial.grid)
+        names(combs) = "polynomial.loglin"
+      }
       res = lapply(1:nrow(combs),function(j){
         polynomial = combs$polynomial[j]
         fv <- rep(0,n)
@@ -108,13 +126,17 @@ MLtuning <- function(X,
                           polynomial.Ridge = polynomial,
                           polynomial.Logit_lasso = polynomial,
                           polynomial.OLS = polynomial,
+                          polynomial.NLLS_exp = polynomial,
+                          polynomial.loglin = polynomial,
                           weights = weights[-ind[[i]]])
           fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
                                     X[ind[[i]],],Y[ind[[i]]],ML = u,
                                     polynomial.Lasso = polynomial,
                                     polynomial.Ridge = polynomial,
                                     polynomial.Logit_lasso = polynomial,
-                                    polynomial.OLS = polynomial)
+                                    polynomial.OLS = polynomial,
+                                    polynomial.NLLS_exp = polynomial,
+                                    polynomial.loglin = polynomial)
         }
         list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2) + var_penalization*var(fv))), fvs = fv)
       })
@@ -307,6 +329,12 @@ MLtuning <- function(X,
       if ("polynomial.OLS" %notin% ls()){
         polynomial.OLS = 1
       }
+      if ("polynomial.NLLS_exp" %notin% ls()){
+        polynomial.NLLS_exp = 1
+      }
+      if ("polynomial.loglin" %notin% ls()){
+        polynomial.loglin = 1
+      }
       if ("rf.cf.ntree" %notin% ls()){
         rf.cf.ntree = 500
       }
@@ -356,6 +384,8 @@ MLtuning <- function(X,
                           polynomial.Ridge = polynomial.Ridge,
                           polynomial.Logit_lasso = polynomial.Logit_lasso,
                           polynomial.OLS = polynomial.OLS,
+                          polynomial.NLLS_exp = polynomial.NLLS_exp,
+                          polynomial.loglin = polynomial.loglin,
                           mt = mtry,
                           cf.depth = cf.depth,
                           xgb.nrounds = xgb.nrounds,
@@ -373,6 +403,8 @@ MLtuning <- function(X,
                                     polynomial.Ridge = polynomial.Ridge,
                                     polynomial.Logit_lasso = polynomial.Logit_lasso,
                                     polynomial.OLS = polynomial.OLS,
+                                    polynomial.NLLS_exp = polynomial.NLLS_exp,
+                                    polynomial.loglin = polynomial.loglin,
                                     coefs = coefs)
         }
         list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2) + var_penalization*var(fv))), fvs = fv)

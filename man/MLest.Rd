@@ -8,7 +8,7 @@ MLest(
   X,
   Y,
   ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Torch", "Logit_lasso", "OLS",
-    "NLLS_exp", "grf", "SL", "OLSensemble"),
+    "NLLS_exp", "loglin", "grf", "SL", "OLSensemble"),
   OLSensemble,
   SL.library,
   rf.cf.ntree = 500,
@@ -20,6 +20,7 @@ MLest(
   polynomial.Logit_lasso = 1,
   polynomial.OLS = 1,
   polynomial.NLLS_exp = 1,
+  polynomial.loglin = 1,
   start_nlls = NULL,
   xgb.nrounds = 200,
   xgb.max.depth = 6,
@@ -72,6 +73,9 @@ see polynomial.Lasso for more info.}
 see polynomial.Lasso for more info.}
 
 \item{polynomial.NLLS_exp}{degree of polynomial to be fitted when using NLLS_exp,
+see polynomial.Lasso for more info.}
+
+\item{polynomial.loglin}{degree of polynomial to be fitted when using loglin,
 see polynomial.Lasso for more info.}
 
 \item{start_nlls}{List with the starting values of the parameters. Default is log(mean(Y))

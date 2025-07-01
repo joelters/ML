@@ -30,6 +30,8 @@
 #' see polynomial.Lasso for more info.
 #' @param polynomial.NLLS_exp degree of polynomial to be fitted when using NLLS_exp,
 #' see polynomial.Lasso for more info.
+#' @param polynomial.loglin degree of polynomial to be fitted when using loglin,
+#' see polynomial.Lasso for more info.
 #' @param coefs optimal coefficients for OLSensemble, computed in modest
 #' @returns vector with fitted values
 #' @examples
@@ -56,13 +58,14 @@ FVest <- function(model,
                   Y,
                   Xnew = X,
                   Ynew = Y,
-                  ML = c("Lasso","Ridge","RF","CIF","XGB","CB","Torch",
+                  ML = c("Lasso","Ridge","RF","CIF","XGB","CB","Torch", "loglin",
                          "Logit_lasso","OLS","NLLS_exp", "grf","SL","OLSensemble"),
                   polynomial.Lasso = 1,
                   polynomial.Ridge = 1,
                   polynomial.Logit_lasso = 1,
                   polynomial.OLS = 1,
                   polynomial.NLLS_exp = 1,
+                  polynomial.loglin = 1,
                   coefs = NULL){
   ML = match.arg(ML)
   Ynew <- as.numeric(Ynew)
@@ -79,7 +82,8 @@ FVest <- function(model,
   dta <- dplyr::as_tibble(cbind(Y = rep(0,nrow(Xnew)),Xnew))
   colnames(dta)[1] <- "Y"
 
-  if (ML == "Lasso" | ML == "Ridge" | ML == "Logit_lasso" | ML == "OLS" | ML == "NLLS_exp"){
+  if (ML == "Lasso" | ML == "Ridge" | ML == "Logit_lasso" | ML == "OLS" |
+      ML == "NLLS_exp" | ML == "loglin"){
     if (ML == "Lasso"){
       polynomial = polynomial.Lasso
     }
@@ -94,6 +98,9 @@ FVest <- function(model,
     }
     else if (ML == "NLLS_exp"){
       polynomial = polynomial.NLLS_exp
+    }
+    else if (ML == "loglin"){
+      polynomial = polynomial.loglin
     }
     if (polynomial == 1){
       MM <- stats::model.matrix(~(.), Xnew)
@@ -143,6 +150,10 @@ FVest <- function(model,
 
   else if (ML == "OLS" | ML == "NLLS_exp"){
     FVs = stats::predict(model, data.frame(Xnew))
+  }
+  else if (ML == "loglin"){
+    FVs = stats::predict(model, data.frame(Xnew))
+    FVs = exp(FVs)
   }
 
   else if (ML == "RF"){

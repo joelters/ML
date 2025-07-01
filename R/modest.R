@@ -3,7 +3,8 @@
 #' `modest` estimates the model for a specified machine learner,
 #'  possible options are Lasso, Ridge, Random Forest, Conditional
 #' Inference Forest, Extreme Gradient Boosting, Catboosting, Logit Lasso,
-#' NLLS with exp(x'b) or any combination of these using the SuperLearner package
+#' NLLS with exp(x'b), loglin with exp(x'b) and x'b from OLS of lnY on X
+#' or any combination of these using the SuperLearner package
 #'
 #' @param X is a dataframe containing all the features
 #' @param Y is a vector containing the label
@@ -26,6 +27,8 @@
 #' @param polynomial.OLS degree of polynomial to be fitted when using OLS,
 #' see polynomial.Lasso for more info.
 #' @param polynomial.NLLS_exp degree of polynomial to be fitted when using NLLS_exp,
+#' see polynomial.Lasso for more info.
+#' @param polynomial.loglin degree of polynomial to be fitted when using loglin,
 #' see polynomial.Lasso for more info.
 #' @param ensemblefolds is an integer specifying how many folds to use in ensemble
 #' methods such as OLSensemble or SuperLearner
@@ -64,7 +67,8 @@
 modest <- function(X,
                    Y,
                    ML = c("Lasso","Ridge","RF","CIF","XGB","CB", "Torch",
-                          "NLLS_exp", "Logit_lasso","OLS","grf","SL","OLSensemble"),
+                          "NLLS_exp", "loglin", "Logit_lasso","OLS",
+                          "grf","SL","OLSensemble"),
                    OLSensemble,
                    SL.library,
                    rf.cf.ntree = 500,
@@ -76,6 +80,7 @@ modest <- function(X,
                    polynomial.Logit_lasso = 1,
                    polynomial.OLS = 1,
                    polynomial.NLLS_exp = 1,
+                   polynomial.loglin = 1,
                    start_nlls = NULL,
                    ensemblefolds = 10,
                    xgb.nrounds = 200,
@@ -96,7 +101,8 @@ modest <- function(X,
     X <- data.frame(X)
   }
 
-  if (ML == "Lasso" | ML == "Ridge" | ML == "Logit_lasso" | ML == "OLS" | ML == "NLLS_exp"){
+  if (ML == "Lasso" | ML == "Ridge" | ML == "Logit_lasso" | ML == "OLS" |
+      ML == "NLLS_exp"| ML == "loglin"){
     if (ML == "Lasso"){
       polynomial = polynomial.Lasso
     }
@@ -111,6 +117,9 @@ modest <- function(X,
     }
     else if (ML == "NLLS_exp"){
       polynomial = polynomial.NLLS_exp
+    }
+    else if (ML == "loglin"){
+      polynomial = polynomial.loglin
     }
     if (polynomial == 1){
       MM <- stats::model.matrix(~(.), X)
@@ -180,6 +189,10 @@ modest <- function(X,
   else if (ML == "OLS"){
     # XX <- model.matrix(Y ~., dta)
     model <- stats::lm(Y ~ ., data = data.frame(Y = as.numeric(Y), X), weights = weights)
+  }
+  else if (ML == "loglin"){
+    # XX <- model.matrix(Y ~., dta)
+    model <- stats::lm(log(Y) ~ ., data = data.frame(Y = as.numeric(Y), X), weights = weights)
   }
 
   else if (ML == "RF"){

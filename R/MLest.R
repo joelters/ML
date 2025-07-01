@@ -31,6 +31,8 @@
 #' see polynomial.Lasso for more info.
 #' @param polynomial.NLLS_exp degree of polynomial to be fitted when using NLLS_exp,
 #' see polynomial.Lasso for more info.
+#' @param polynomial.loglin degree of polynomial to be fitted when using loglin,
+#' see polynomial.Lasso for more info.
 #' @param xgb.nrounds is an integer specifying how many rounds to use in XGB
 #' @param xgb.max.depth is an integer specifying how deep trees should be grown in XGB
 #' @param cb.iterations The maximum number of trees that can be built in CB
@@ -66,7 +68,8 @@
 MLest <- function(X,
                   Y,
                   ML = c("Lasso","Ridge","RF","CIF","XGB","CB", "Torch",
-                         "Logit_lasso","OLS", "NLLS_exp", "grf","SL","OLSensemble"),
+                         "Logit_lasso","OLS", "NLLS_exp",
+                        "loglin", "grf","SL","OLSensemble"),
                   OLSensemble,
                   SL.library,
                   rf.cf.ntree = 500,
@@ -78,6 +81,7 @@ MLest <- function(X,
                   polynomial.Logit_lasso = 1,
                   polynomial.OLS = 1,
                   polynomial.NLLS_exp = 1,
+                  polynomial.loglin = 1,
                   start_nlls = NULL,
                   xgb.nrounds = 200,
                   xgb.max.depth = 6,
@@ -123,6 +127,7 @@ MLest <- function(X,
                 polynomial.Logit_lasso = polynomial.Logit_lasso,
                 polynomial.OLS = polynomial.OLS,
                 polynomial.NLLS_exp = polynomial.NLLS_exp,
+                polynomial.loglin = polynomial.loglin,
                 start_nlls = start_nlls,
                 xgb.nrounds = xgb.nrounds,
                 xgb.max.depth = xgb.max.depth,
@@ -144,6 +149,7 @@ MLest <- function(X,
                    polynomial.Logit_lasso = polynomial.Logit_lasso,
                    polynomial.OLS = polynomial.OLS,
                    polynomial.NLLS_exp = polynomial.NLLS_exp,
+                   polynomial.loglin = polynomial.loglin,
                    coefs = coefs)
       return(list("model" = m, "FVs" = FVs, "coefs" = coefs))
     }

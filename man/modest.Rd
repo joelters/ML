@@ -7,8 +7,8 @@
 modest(
   X,
   Y,
-  ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Torch", "NLLS_exp", "Logit_lasso",
-    "OLS", "grf", "SL", "OLSensemble"),
+  ML = c("Lasso", "Ridge", "RF", "CIF", "XGB", "CB", "Torch", "NLLS_exp", "loglin",
+    "Logit_lasso", "OLS", "grf", "SL", "OLSensemble"),
   OLSensemble,
   SL.library,
   rf.cf.ntree = 500,
@@ -20,6 +20,7 @@ modest(
   polynomial.Logit_lasso = 1,
   polynomial.OLS = 1,
   polynomial.NLLS_exp = 1,
+  polynomial.loglin = 1,
   start_nlls = NULL,
   ensemblefolds = 10,
   xgb.nrounds = 200,
@@ -69,6 +70,9 @@ see polynomial.Lasso for more info.}
 \item{polynomial.NLLS_exp}{degree of polynomial to be fitted when using NLLS_exp,
 see polynomial.Lasso for more info.}
 
+\item{polynomial.loglin}{degree of polynomial to be fitted when using loglin,
+see polynomial.Lasso for more info.}
+
 \item{start_nlls}{List with the starting values of the parameters. Default is log(mean(Y))
 for the intercept and zero for all the rest.}
 
@@ -105,7 +109,8 @@ it returns the coefficients assigned to each machine learner in ensemble
 \code{modest} estimates the model for a specified machine learner,
 possible options are Lasso, Ridge, Random Forest, Conditional
 Inference Forest, Extreme Gradient Boosting, Catboosting, Logit Lasso,
-NLLS with exp(x'b) or any combination of these using the SuperLearner package
+NLLS with exp(x'b), loglin with exp(x'b) and x'b from OLS of lnY on X
+or any combination of these using the SuperLearner package
 }
 \details{
 Note that the glmnet package
