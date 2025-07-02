@@ -321,7 +321,7 @@ modest <- function(X,
       if(colnames(X)[1] == "(Intercept)"){
         X = as.matrix(X[,-1, drop = FALSE])
       }
-      regs = colnames(X)
+      regs = colnames(data.frame(X))
       params <- paste0("beta", seq_along(regs))
       names(params) <- regs
       formula_str <- paste0("Y ~ exp(beta0 +", paste(params, regs, sep = "*", collapse = " + "), ")")
