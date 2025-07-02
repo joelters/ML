@@ -67,7 +67,6 @@ FVest <- function(model,
                   polynomial.NLLS_exp = 1,
                   polynomial.loglin = 1,
                   coefs = NULL){
-  browser()
   ML = match.arg(ML)
   Ynew <- as.numeric(Ynew)
   if (!("data.frame" %in% class(X))){
@@ -172,7 +171,6 @@ FVest <- function(model,
     FVs = stats::predict(model, data.frame(Xnew))
   }
   else if (ML == "NLLS_exp"){
-    browser()
     Xnew = data.frame(Xnew)
     FVs = stats::predict(model, Xnew)
     if (length(FVs) == 1){  #if model only contains intercepts it only gives a scalar
