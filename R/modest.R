@@ -327,7 +327,7 @@ modest <- function(X,
       formula_str <- paste0("Y ~ exp(beta0 +", paste(params, regs, sep = "*", collapse = " + "), ")")
       nls_formula = as.formula(formula_str)
       if (is.null(start_nlls) == TRUE){
-        start_nlls <- as.list(c(log(mean(Y)), rep(0, length(params))))
+        start_nlls <- as.list(c(log(mean(Y)), rnorm(length(params),0,0.05)))
         names(start_nlls) = paste0("beta", seq_along(c(1,regs)) - 1)
       }
       else {
@@ -336,10 +336,13 @@ modest <- function(X,
     }
     if(is.null(weights)){
       model = stats::nls(formula = nls_formula, data = data.frame(Y = Y, X),
-                         start = start_nlls)
+                         start = start_nlls,
+                         control = nls.control(maxiter = 500))
     } else{
       model = stats::nls(formula = nls_formula, data = data.frame(Y = Y, X),
-                         start = start_nlls, weights = weights)
+                         start = start_nlls,
+                         control = nls.control(maxiter = 500),
+                         weights = weights)
     }
   }
 
