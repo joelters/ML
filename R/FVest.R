@@ -67,16 +67,16 @@ FVest <- function(model,
                   polynomial.NLLS_exp = 1,
                   polynomial.loglin = 1,
                   coefs = NULL){
+  browser()
   ML = match.arg(ML)
   Ynew <- as.numeric(Ynew)
-
   if (!("data.frame" %in% class(X))){
     X <- data.frame(X)
   }
   if (!("data.frame" %in% class(Xnew))){
     Xnew <- data.frame(Xnew)
   }
-
+  names(Xnew) = names(X)
   #note that Y in dta is not used for anything so we just want it
   #to be consistent in the dimensions
   dta <- dplyr::as_tibble(cbind(Y = rep(0,nrow(Xnew)),Xnew))
@@ -103,22 +103,22 @@ FVest <- function(model,
       polynomial = polynomial.loglin
     }
     if (polynomial == 1){
-      if(ncol(X) == 0){
-        X = data.frame(rep(1,nrow(X)))
+      if(ncol(Xnew) == 0){
+        Xnew = data.frame(rep(1,nrow(Xnew)))
       }
-      MM <- stats::model.matrix(~(.), X)
-      if(ncol(X) == 1 & length(unique(X[, 1])) == 1){
+      MM <- stats::model.matrix(~(.), Xnew)
+      if(ncol(Xnew) == 1 & length(unique(Xnew[, 1])) == 1){
         aa = as.matrix(MM[,1])
         colnames(aa) = colnames(MM)[1]
         MM = aa
       }
     }
     else if (polynomial >= 2){
-      if(ncol(X) == 0){
-        X = data.frame(rep(1,nrow(X)))
+      if(ncol(Xnew) == 0){
+        Xnew = data.frame(rep(1,nrow(Xnew)))
       }
-      M <- stats::model.matrix(~(.), X)
-      if(ncol(X) == 1 & length(unique(X[, 1])) == 1){
+      M <- stats::model.matrix(~(.), Xnew)
+      if(ncol(Xnew) == 1 & length(unique(Xnew[, 1])) == 1){
         aa = as.matrix(M[,1])
         colnames(aa) = colnames(M)[1]
         M = aa
@@ -143,7 +143,7 @@ FVest <- function(model,
           A <- NULL
         }
         fml<- as.formula(paste("~(.)^",polynomial,sep=""))
-        MM <- cbind(stats::model.matrix(fml,X),A)
+        MM <- cbind(stats::model.matrix(fml,Xnew),A)
       }
     }
     else{
@@ -168,8 +168,16 @@ FVest <- function(model,
     FVs = stats::predict(model, Xnew, s = lstar)
   }
 
-  else if (ML == "OLS" | ML == "NLLS_exp"){
+  else if (ML == "OLS"){
     FVs = stats::predict(model, data.frame(Xnew))
+  }
+  else if (ML == "NLLS_exp"){
+    browser()
+    Xnew = data.frame(Xnew)
+    FVs = stats::predict(model, Xnew)
+    if (length(FVs) == 1){  #if model only contains intercepts it only gives a scalar
+      FVs = rep(FVs,nrow(Xnew))
+    }
   }
   else if (ML == "loglin"){
     FVs = stats::predict(model, data.frame(Xnew))

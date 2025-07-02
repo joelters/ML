@@ -96,7 +96,6 @@ modest <- function(X,
   ML = match.arg(ML)
   dta <- dplyr::as_tibble(cbind(Y = Y,X))
   colnames(dta)[1] <- "Y"
-
   if (!("data.frame" %in% class(X))){
     X <- data.frame(X)
   }
