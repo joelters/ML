@@ -107,7 +107,7 @@ FVest <- function(model,
         X = data.frame(rep(1,nrow(X)))
       }
       MM <- stats::model.matrix(~(.), X)
-      if(ncol(X) == 1 & var(X[,1]) == 0){
+      if(ncol(X) == 1 & length(unique(X[, 1])) == 1){
         aa = as.matrix(MM[,1])
         colnames(aa) = colnames(MM)[1]
         MM = aa
@@ -118,7 +118,7 @@ FVest <- function(model,
         X = data.frame(rep(1,nrow(X)))
       }
       M <- stats::model.matrix(~(.), X)
-      if(ncol(X) == 1 & var(X[,1]) == 0){
+      if(ncol(X) == 1 & length(unique(X[, 1])) == 1){
         aa = as.matrix(M[,1])
         colnames(aa) = colnames(M)[1]
         M = aa

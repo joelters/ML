@@ -126,7 +126,7 @@ modest <- function(X,
         X = data.frame(rep(1,nrow(X)))
       }
       MM <- stats::model.matrix(~(.), X)
-      if(ncol(X) == 1 & var(X[,1]) == 0){
+      if(ncol(X) == 1 & length(unique(X[, 1])) == 1){
         aa = as.matrix(MM[,1])
         colnames(aa) = colnames(MM)[1]
         MM = aa
@@ -137,7 +137,7 @@ modest <- function(X,
         X = data.frame(rep(1,nrow(X)))
       }
       M <- stats::model.matrix(~(.), X)
-      if(ncol(X) == 1 & var(X[,1]) == 0){
+      if(ncol(X) == 1 & length(unique(X[, 1])) == 1){
         aa = as.matrix(M[,1])
         colnames(aa) = colnames(M)[1]
         M = aa
@@ -315,10 +315,13 @@ modest <- function(X,
     model <- grf::regression_forest(X = X, Y = Y, sample.weights = weights)
   }
   else if (ML == "NLLS_exp"){
-    if (ncol(X) == 1 & var(X[,1]) == 0){
+    if (ncol(X) == 1 & length(unique(X[, 1])) == 1){
       nls_formula <- Y ~ exp(beta0)
       start_nlls <- list(beta0 = log(mean(Y)))
     } else{
+      if(colnames(X)[1] == "(Intercept)"){
+        X = as.matrix(X[,-1, drop = FALSE])
+      }
       regs = colnames(X)
       params <- paste0("beta", seq_along(regs))
       names(params) <- regs
