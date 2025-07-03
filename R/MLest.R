@@ -95,7 +95,7 @@ MLest <- function(X,
                   ensemblefolds = 2,
                   weights = NULL){
   ML = match.arg(ML)
-  X <- dplyr::as_tibble(X)
+  X <- data.frame(X)
   if (ML == "SL"){
     require("ranger")
     #Estimate model
