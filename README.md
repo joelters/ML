@@ -1,9 +1,10 @@
 The goal of ML is to provide a simple to use package to estimate Lasso, Ridge, Random Forest (RF),
 Conditional Inference Forest (CIF), Extreme Gradient Boosting (XGB), Catboosting (CB),
-Logit lasso and a SuperLearner combining all of these learners. The package has three user functions: modest,
-FVest and MLest. modest estimates only the model of the chosen Machine Learner. FVest takes
+Logit lasso and a SuperLearner combining all of these learners. The package has four user functions: modest,
+FVest, MLest and MLtuning. modest estimates only the model of the chosen Machine Learner. FVest takes
 a model and gives the predicted fitted values for new features of choice. MLest combines both 
-functions but only computes fitted values of the same observations used to build the model.
+functions but only computes fitted values of the same observations used to build the model. MLtuning
+allows to tune hyperparameters by cross-validation.
 The package includes a survey with income and circumstances for Madrid in 2018 (from
 Encuesta de Condiciones de vida (ECV) 2019).
 
@@ -36,9 +37,9 @@ m3 <- MLest(X,Y,"Lasso", FVs = FALSE)
 
 m4 <- MLest(X,Y,"SL",
         ensemble = c("SL.Lasso","SL.Ridge","SL.RF","SL.CIF","SL.XGB","SL.CB"))
+
+tuning <- MLtuning(X,Y,ML = "RF", Kcv = 5, rf.cf.ntree.grid = c(100,300,500))
 ```
 For more info install the package and see the documentation of the functions with
-?modest, ?FVest and ?MLest. For now it is not possible to change the tuning parameters.
-For the moment I suggest using the trace() function to change the tuning parameters
-(see [here](https://stackoverflow.com/questions/34800331/r-modify-and-rebuild-package)).
+?modest, ?FVest, ?MLest and ?MLtuning. 
 
