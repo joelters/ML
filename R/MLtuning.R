@@ -116,11 +116,12 @@ MLtuning <- function(X,
       }
       res = lapply(1:nrow(combs),function(j){
         polynomial = combs$polynomial[j]
+        if (verbose == TRUE){
+          print(paste(u, ": Testing combination ", j, "/", nrow(combs), 
+                      " (polynomial=", polynomial, ")", sep = ""))
+        }
         fv <- rep(0,n)
         for (i in 1:Kcv){
-          if (verbose == TRUE){
-            print(paste("Fold ",i, " of ", Kcv, " of ML ",u, sep = ""))
-          }
           m <- ML::modest(X[-ind[[i]],],Y[-ind[[i]]],ML = u,
                           polynomial.Lasso = polynomial,
                           polynomial.Ridge = polynomial,
@@ -156,11 +157,13 @@ MLtuning <- function(X,
           rf.depth = NULL
         }
         mtry = combs$mtry[j]
+        if (verbose == TRUE){
+          print(paste(u, ": Testing combination ", j, "/", nrow(combs), 
+                      " (ntree=", rf.cf.ntree, ", depth=", ifelse(is.null(rf.depth), "Inf", rf.depth), 
+                      ", mtry=", mtry, ")", sep = ""))
+        }
         fv <- rep(0,n)
         for (i in 1:Kcv){
-          if (verbose == TRUE){
-            print(paste("Fold ",i, " of ", Kcv, " of ML ",u, sep = ""))
-          }
           m <- ML::modest(X[-ind[[i]],],Y[-ind[[i]]],ML = u,
                           rf.cf.ntree = rf.cf.ntree,
                           rf.depth = rf.depth,
@@ -184,11 +187,12 @@ MLtuning <- function(X,
         rf.cf.ntree = combs$rf.cf.ntree[j]
         mtry = combs$mtry[j]
         cf.depth = combs$cf.depth[j]
+        if (verbose == TRUE){
+          print(paste(u, ": Testing combination ", j, "/", nrow(combs), 
+                      " (ntree=", rf.cf.ntree, ", mtry=", mtry, ", depth=", cf.depth, ")", sep = ""))
+        }
         fv <- rep(0,n)
         for (i in 1:Kcv){
-          if (verbose == TRUE){
-            print(paste("Fold ",i, " of ", Kcv, " of ML ",u, sep = ""))
-          }
           m <- ML::modest(X[-ind[[i]],],Y[-ind[[i]]],ML = u,
                           rf.cf.ntree = rf.cf.ntree,
                           mtry = mtry,
@@ -211,11 +215,12 @@ MLtuning <- function(X,
       res = lapply(1:nrow(combs),function(j){
         xgb.nrounds = combs$xgb.nrounds[j]
         xgb.max.depth = combs$xgb.max.depth[j]
+        if (verbose == TRUE){
+          print(paste(u, ": Testing combination ", j, "/", nrow(combs), 
+                      " (nrounds=", xgb.nrounds, ", max_depth=", xgb.max.depth, ")", sep = ""))
+        }
         fv <- rep(0,n)
         for (i in 1:Kcv){
-          if (verbose == TRUE){
-            print(paste("Fold ",i, " of ", Kcv, " of ML ",u, sep = ""))
-          }
           m <- ML::modest(X[-ind[[i]],],Y[-ind[[i]]],ML = u,
                           xgb.nrounds = xgb.nrounds,
                           xgb.max.depth = xgb.max.depth,
@@ -237,11 +242,12 @@ MLtuning <- function(X,
       res = lapply(1:nrow(combs),function(j){
         cb.iterations = combs$cb.iterations[j]
         cb.depth = combs$cb.depth[j]
+        if (verbose == TRUE){
+          print(paste(u, ": Testing combination ", j, "/", nrow(combs), 
+                      " (iterations=", cb.iterations, ", depth=", cb.depth, ")", sep = ""))
+        }
         fv <- rep(0,n)
         for (i in 1:Kcv){
-          if (verbose == TRUE){
-            print(paste("Fold ",i, " of ", Kcv, " of ML ",u, sep = ""))
-          }
           m <- ML::modest(X[-ind[[i]],],Y[-ind[[i]]],ML = u,
                           cb.iteration = cb.iterations,
                           cb.depth = cb.depth,
@@ -269,11 +275,13 @@ MLtuning <- function(X,
         torch.lr = combs$torch.lr[j]
         torch.dropout = combs$torch.dropout[j]
         torch.epochs = combs$torch.epochs[j]
+        if (verbose == TRUE){
+          print(paste(u, ": Testing combination ", j, "/", nrow(combs), 
+                      " (hidden_units=", paste(torch.hidden_units, collapse=","), 
+                      ", lr=", torch.lr, ", dropout=", torch.dropout, ", epochs=", torch.epochs, ")", sep = ""))
+        }
         fv <- rep(0,n)
         for (i in 1:Kcv){
-          if (verbose == TRUE){
-            print(paste("Fold ",i, " of ", Kcv, " of ML ",u, sep = ""))
-          }
           m <- ML::modest(X[-ind[[i]],],Y[-ind[[i]]],ML = u,
                           torch.hidden_units = torch.hidden_units,
                           torch.lr = torch.lr,
@@ -371,11 +379,12 @@ MLtuning <- function(X,
       names(combs) = c("ensemblefolds")
       res = lapply(1:nrow(combs),function(j){
         ensemblefolds = combs$ensemblefolds[j]
+        if (verbose == TRUE){
+          print(paste(u, ": Testing combination ", j, "/", nrow(combs), 
+                      " (ensemblefolds=", ensemblefolds, ")", sep = ""))
+        }
         fv <- rep(0,n)
         for (i in 1:Kcv){
-          if (verbose == TRUE){
-            print(paste("Fold ",i, " of ", Kcv, " of ML ",u, sep = ""))
-          }
           m <- ML::modest(X[-ind[[i]],],Y[-ind[[i]]],ML = u,
                           OLSensemble = OLSensemble,
                           rf.cf.ntree = rf.cf.ntree,
