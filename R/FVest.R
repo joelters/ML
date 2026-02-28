@@ -138,11 +138,21 @@ FVest <- function(model,
       if (ncol(M) == 1){
         MM = M
       } else{
-        M2 <- as.matrix(M[,2:ncol(M)])
-        if (ncol(M) == 2){
-          colnames(M2) <- colnames(M)[2]
+        # Only remove first column if it's actually an intercept
+        if (intercept && (ML == "OLS" || ML == "Lasso" || ML == "Ridge" || ML == "loglin")) {
+          M2 <- as.matrix(M[,2:ncol(M)])
+          if (ncol(M) == 2){
+            colnames(M2) <- colnames(M)[2]
+          }
+          M <- M2
+        } else if (!(ML == "OLS" || ML == "Lasso" || ML == "Ridge" || ML == "loglin")) {
+          # For other models, always remove first column (they always have intercept)
+          M2 <- as.matrix(M[,2:ncol(M)])
+          if (ncol(M) == 2){
+            colnames(M2) <- colnames(M)[2]
+          }
+          M <- M2
         }
-        M <- M2
         Mnon01 <- colnames(M)[!apply(M,2,function(u){all(u %in% 0:1)})]
         if (length(Mnon01) != 0){
           A <- lapply(2:polynomial, function(u){
