@@ -50,6 +50,8 @@
 #' @param FVs a logical indicating whether FVs should be computed
 #' @param weights survey weights adding up to 1
 #' @param ensemblefolds number of folds to split in OLSensemble method
+#' @param intercept logical; should an intercept be included in the model? Default is TRUE.
+#' Only applies to OLS, Lasso, Ridge, and loglin.
 #' @returns list containing model and fitted values
 #' @examples
 #' X <- dplyr::select(mad2019,-Y)
@@ -93,7 +95,8 @@ MLest <- function(X,
                   torch.dropout = 0.2,
                   FVs = TRUE,
                   ensemblefolds = 2,
-                  weights = NULL){
+                  weights = NULL,
+                  intercept = TRUE){
   ML = match.arg(ML)
   X <- data.frame(X)
   if (ML == "SL"){
@@ -137,7 +140,8 @@ MLest <- function(X,
                 torch.hidden_units = torch.hidden_units,
                 torch.lr = torch.lr,
                 torch.dropout = torch.dropout,
-                ensemblefolds = ensemblefolds)
+                ensemblefolds = ensemblefolds,
+                intercept = intercept)
     if (ML == "OLSensemble"){
       coefs = m$coefs
       # m = m$models
@@ -150,7 +154,8 @@ MLest <- function(X,
                    polynomial.OLS = polynomial.OLS,
                    polynomial.NLLS_exp = polynomial.NLLS_exp,
                    polynomial.loglin = polynomial.loglin,
-                   coefs = coefs)
+                   coefs = coefs,
+                   intercept = intercept)
       return(list("model" = m, "FVs" = FVs, "coefs" = coefs))
     }
     else{

@@ -44,6 +44,9 @@
 #' @param cb.iterations The maximum number of trees that can be built in CB
 #' @param cb.depth The depth of the trees in CB
 #' @param verbose logical specifying whether to print progress
+#' @param weights is a vector containing survey weights adding up to 1
+#' @param intercept logical; should an intercept be included in the model? Default is TRUE.
+#' Only applies to OLS, Lasso, Ridge, and loglin.
 #' @returns list containing ML attaining minimum RMSE and RMSE
 #'
 #'
@@ -77,7 +80,8 @@ MLtuning <- function(X,
                  torch.dropout.grid = c(0.1, 0.2, 0.3),
                  torch.epochs.grid = c(50, 100),
                  verbose = FALSE,
-                 weights = NULL){
+                 weights = NULL,
+                 intercept = TRUE){
   n <- length(Y)
   X <- dplyr::as_tibble(X)
   ind <- split(seq(n), seq(n) %% Kcv)
@@ -129,7 +133,8 @@ MLtuning <- function(X,
                           polynomial.OLS = polynomial,
                           polynomial.NLLS_exp = polynomial,
                           polynomial.loglin = polynomial,
-                          weights = weights[-ind[[i]]])
+                          weights = weights[-ind[[i]]],
+                          intercept = intercept)
           fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
                                     X[ind[[i]],],Y[ind[[i]]],ML = u,
                                     polynomial.Lasso = polynomial,
@@ -137,7 +142,8 @@ MLtuning <- function(X,
                                     polynomial.Logit_lasso = polynomial,
                                     polynomial.OLS = polynomial,
                                     polynomial.NLLS_exp = polynomial,
-                                    polynomial.loglin = polynomial)
+                                    polynomial.loglin = polynomial,
+                                    intercept = intercept)
         }
         list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2) + var_penalization*var(fv))), fvs = fv)
       })
@@ -315,7 +321,8 @@ MLtuning <- function(X,
                  polynomial.OLS.grid = polynomial.OLS.grid,
                  xgb.nrounds.grid = xgb.nrounds.grid,
                  xgb.max.depth.grid = xgb.max.depth.grid,
-                 weights = weights)
+                 weights = weights,
+                 intercept = intercept)
         a$results_best[[1]]
       })
       for (jt in 1:length(res0)){
@@ -401,7 +408,8 @@ MLtuning <- function(X,
                           xgb.max.depth = xgb.max.depth,
                           cb.iterations = cb.iterations,
                           cb.depth = cb.depth,
-                          weights = weights[-ind[[i]]])
+                          weights = weights[-ind[[i]]],
+                          intercept = intercept)
 
           coefs = m$coefs
           # m = m$models
@@ -414,7 +422,8 @@ MLtuning <- function(X,
                                     polynomial.OLS = polynomial.OLS,
                                     polynomial.NLLS_exp = polynomial.NLLS_exp,
                                     polynomial.loglin = polynomial.loglin,
-                                    coefs = coefs)
+                                    coefs = coefs,
+                                    intercept = intercept)
         }
         list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2) + var_penalization*var(fv))), fvs = fv)
       })

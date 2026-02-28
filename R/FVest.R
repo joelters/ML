@@ -33,6 +33,8 @@
 #' @param polynomial.loglin degree of polynomial to be fitted when using loglin,
 #' see polynomial.Lasso for more info.
 #' @param coefs optimal coefficients for OLSensemble, computed in modest
+#' @param intercept logical; should an intercept be included in the model? Default is TRUE.
+#' Only applies to OLS, Lasso, Ridge, and loglin.
 #' @returns vector with fitted values
 #' @examples
 #' X <- dplyr::select(mad2019,-Y)
@@ -66,7 +68,8 @@ FVest <- function(model,
                   polynomial.OLS = 1,
                   polynomial.NLLS_exp = 1,
                   polynomial.loglin = 1,
-                  coefs = NULL){
+                  coefs = NULL,
+                  intercept = TRUE){
   ML = match.arg(ML)
   Ynew <- as.numeric(Ynew)
   if (!("data.frame" %in% class(X))){
@@ -105,7 +108,12 @@ FVest <- function(model,
       if(ncol(Xnew) == 0){
         Xnew = data.frame(rep(1,nrow(Xnew)))
       }
-      MM <- stats::model.matrix(~(.), Xnew)
+      # Apply intercept control only for OLS, Lasso, Ridge, and loglin
+      if ((ML == "OLS" | ML == "Lasso" | ML == "Ridge" | ML == "loglin") & !intercept) {
+        MM <- stats::model.matrix(~.-1, Xnew)
+      } else {
+        MM <- stats::model.matrix(~(.), Xnew)
+      }
       if(ncol(Xnew) == 1 & length(unique(Xnew[, 1])) == 1){
         aa = as.matrix(MM[,1])
         colnames(aa) = colnames(MM)[1]
@@ -116,7 +124,12 @@ FVest <- function(model,
       if(ncol(Xnew) == 0){
         Xnew = data.frame(rep(1,nrow(Xnew)))
       }
-      M <- stats::model.matrix(~(.), Xnew)
+      # Apply intercept control only for OLS, Lasso, Ridge, and loglin
+      if ((ML == "OLS" | ML == "Lasso" | ML == "Ridge" | ML == "loglin") & !intercept) {
+        M <- stats::model.matrix(~.-1, Xnew)
+      } else {
+        M <- stats::model.matrix(~(.), Xnew)
+      }
       if(ncol(Xnew) == 1 & length(unique(Xnew[, 1])) == 1){
         aa = as.matrix(M[,1])
         colnames(aa) = colnames(M)[1]
@@ -168,7 +181,12 @@ FVest <- function(model,
   }
 
   else if (ML == "OLS"){
-    FVs = stats::predict(model, data.frame(Xnew))
+    if (intercept) {
+      FVs = stats::predict(model, data.frame(Xnew))
+    } else {
+      # For models without intercept, need to be careful with prediction
+      FVs = stats::predict(model, data.frame(Xnew))
+    }
   }
   else if (ML == "NLLS_exp"){
     Xnew = data.frame(Xnew)
@@ -193,7 +211,7 @@ FVest <- function(model,
          as input for prediction.")
     }
 
-    FVs <- stats::predict(model,Xnew)
+      FVs <- stats::predict(model, newdata = Xnew)
     FVs <- FVs$predictions
   }
 
@@ -304,7 +322,8 @@ FVest <- function(model,
                              ML = ensemble[ii],polynomial.Lasso = polynomial.Lasso,
                              polynomial.Ridge = polynomial.Ridge,
                              polynomial.Logit_lasso = polynomial.Logit_lasso,
-                             polynomial.OLS = polynomial.OLS)
+                             polynomial.OLS = polynomial.OLS,
+                             intercept = intercept)
     }
     Xpred = cbind(rep(1,nnew),Xpred)
     FVs = Xpred%*%coefs

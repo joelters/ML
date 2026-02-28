@@ -37,6 +37,8 @@
 #' @param cb.depth The depth of the trees in CB
 #' @param verbose logical specifying whether to print progress
 #' @param weights is a vector containing survey weights adding up to 1
+#' @param intercept logical; should an intercept be included in the model? Default is TRUE.
+#' Only applies to OLS, Lasso, Ridge, and loglin.
 #' @returns list containing ML attaining minimum RMSE and RMSE
 #'
 #'
@@ -61,7 +63,8 @@ MLcv <- function(X,
                  cb.iterations = 500,
                  cb.depth = 6,
                  verbose = FALSE,
-                 weights = NULL){
+                 weights = NULL,
+                 intercept = TRUE){
   n <- length(Y)
   X <- dplyr::as_tibble(X)
   ind <- split(seq(n), seq(n) %% Kcv)
@@ -86,7 +89,8 @@ MLcv <- function(X,
                       cb.iterations = cb.iterations,
                       cb.depth = cb.depth,
                       ensemblefolds = ensemblefolds,
-                      weights = weights[-ind[[i]]])
+                      weights = weights[-ind[[i]]],
+                      intercept = intercept)
       if (u == "OLSensemble"){
         coefs = m$coefs
         m = m$models
@@ -97,7 +101,8 @@ MLcv <- function(X,
                                 polynomial.Ridge = polynomial.Ridge,
                                 polynomial.Logit_lasso = polynomial.Logit_lasso,
                                 polynomial.OLS = polynomial.OLS,
-                                coefs = coefs)
+                                coefs = coefs,
+                                intercept = intercept)
     }
     rmse <- sqrt(mean((Y-fv)^2))
   })

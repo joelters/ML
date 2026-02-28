@@ -47,6 +47,8 @@
 #' @param torch.dropout is a numeric value between 0 and 1 specifying the dropout rate
 #' for regularization in the Torch neural network.
 #' @param weights is a vector containing survey weights adding up to 1
+#' @param intercept logical; should an intercept be included in the model? Default is TRUE.
+#' Only applies to OLS, Lasso, Ridge, and loglin.
 #' @returns the object that the machine learner package returns, in case of OLSensemble
 #' it returns the coefficients assigned to each machine learner in ensemble
 #' @examples
@@ -91,7 +93,8 @@ modest <- function(X,
                    torch.hidden_units = c(64, 32),
                    torch.lr = 0.01,
                    torch.dropout = 0.2,
-                   weights = NULL){
+                   weights = NULL,
+                   intercept = TRUE){
   Y <- as.numeric(Y)
   ML = match.arg(ML)
   dta <- dplyr::as_tibble(cbind(Y = Y,X))
@@ -124,7 +127,12 @@ modest <- function(X,
       if(ncol(X) == 0){
         X = data.frame(rep(1,nrow(X)))
       }
-      MM <- stats::model.matrix(~(.), X)
+      # Apply intercept control only for OLS, Lasso, Ridge, and loglin
+      if ((ML == "OLS" | ML == "Lasso" | ML == "Ridge" | ML == "loglin") & !intercept) {
+        MM <- stats::model.matrix(~.-1, X)
+      } else {
+        MM <- stats::model.matrix(~(.), X)
+      }
       if(ncol(X) == 1 & length(unique(X[, 1])) == 1){
         aa = as.matrix(MM[,1])
         colnames(aa) = colnames(MM)[1]
@@ -135,7 +143,12 @@ modest <- function(X,
       if(ncol(X) == 0){
         X = data.frame(rep(1,nrow(X)))
       }
-      M <- stats::model.matrix(~(.), X)
+      # Apply intercept control only for OLS, Lasso, Ridge, and loglin
+      if ((ML == "OLS" | ML == "Lasso" | ML == "Ridge" | ML == "loglin") & !intercept) {
+        M <- stats::model.matrix(~.-1, X)
+      } else {
+        M <- stats::model.matrix(~(.), X)
+      }
       if(ncol(X) == 1 & length(unique(X[, 1])) == 1){
         aa = as.matrix(M[,1])
         colnames(aa) = colnames(M)[1]
@@ -191,7 +204,7 @@ modest <- function(X,
 
   else if (ML == "Lasso"){
     # XX <- model.matrix(Y ~., dta)
-    model <- glmnet::cv.glmnet(X,as.matrix(Y),alpha = 1, weights = weights)
+    model <- glmnet::cv.glmnet(X,as.matrix(Y),alpha = 1, weights = weights, intercept = intercept)
   }
 
   else if (ML == "Logit_lasso"){
@@ -202,16 +215,24 @@ modest <- function(X,
 
   else if (ML == "Ridge"){
     # XX <- model.matrix(Y ~., dta)
-    model <- glmnet::cv.glmnet(X,as.matrix(Y),alpha = 0, weights = weights)
+    model <- glmnet::cv.glmnet(X,as.matrix(Y),alpha = 0, weights = weights, intercept = intercept)
   }
 
   else if (ML == "OLS"){
     # XX <- model.matrix(Y ~., dta)
-    model <- stats::lm(Y ~ ., data = data.frame(Y = as.numeric(Y), X), weights = weights)
+    if (intercept) {
+      model <- stats::lm(Y ~ ., data = data.frame(Y = as.numeric(Y), X), weights = weights)
+    } else {
+      model <- stats::lm(Y ~ . - 1, data = data.frame(Y = as.numeric(Y), X), weights = weights)
+    }
   }
   else if (ML == "loglin"){
     # XX <- model.matrix(Y ~., dta)
-    model <- stats::lm(log(Y) ~ ., data = data.frame(Y = as.numeric(Y), X), weights = weights)
+    if (intercept) {
+      model <- stats::lm(log(Y) ~ ., data = data.frame(Y = as.numeric(Y), X), weights = weights)
+    } else {
+      model <- stats::lm(log(Y) ~ . - 1, data = data.frame(Y = as.numeric(Y), X), weights = weights)
+    }
   }
 
   else if (ML == "RF"){
@@ -365,14 +386,16 @@ modest <- function(X,
                         xgb.max.depth = xgb.max.depth,
                         cb.iterations = cb.iterations,
                         cb.depth = cb.depth,
-                        weights = weights[-ind[[ii]]])
+                        weights = weights[-ind[[ii]]],
+                        intercept = intercept)
 
         pred[ind[[ii]]] = ML::FVest(mm,X[-ind[[ii]],],Y[-ind[[ii]]],
                          X[ind[[ii]],],Y[ind[[ii]]],ML = u,
                          polynomial.Lasso = polynomial.Lasso,
                          polynomial.Ridge = polynomial.Ridge,
                          polynomial.Logit_lasso = polynomial.Logit_lasso,
-                         polynomial.OLS = polynomial.OLS)
+                         polynomial.OLS = polynomial.OLS,
+                         intercept = intercept)
       }
       pred
     })
@@ -397,7 +420,8 @@ modest <- function(X,
                  xgb.max.depth = xgb.max.depth,
                  cb.iterations = cb.iterations,
                  cb.depth = cb.depth,
-                 weights = weights)
+                 weights = weights,
+                 intercept = intercept)
     })
     names(ms) = OLSensemble
     return(list(models = ms, coefs = coefs))
