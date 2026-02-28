@@ -183,14 +183,24 @@ modest <- function(X,
         else{
           A <- NULL
         }
-        fml<- as.formula(paste("~(.)^",polynomial,sep=""))
+        # Create formula with or without intercept based on ML and intercept setting
+        if ((ML == "OLS" || ML == "Lasso" || ML == "Ridge" || ML == "loglin") && !intercept) {
+          fml <- as.formula(paste("~(.)^",polynomial," - 1",sep=""))
+        } else {
+          fml <- as.formula(paste("~(.)^",polynomial,sep=""))
+        }
         MM <- cbind(stats::model.matrix(fml,X),A)
       }
     }
     else{
       stop("polynomial has to be an integer larger or equal than 1")
     }
-    if (ncol(MM) > 2){
+    # Only drop first column if intercept exists
+    if ((ML == "OLS" || ML == "Lasso" || ML == "Ridge" || ML == "loglin") && !intercept) {
+      # No intercept, keep all columns
+      X <- MM
+    } else if (ncol(MM) > 2){
+      # Has intercept, drop it
       X <- as.matrix(MM[,2:ncol(MM)])
     }
     else{
