@@ -211,7 +211,7 @@ FVest <- function(model,
          as input for prediction.")
     }
 
-      FVs <- stats::predict(model, newdata = Xnew)
+      FVs <- stats::predict(model, data = Xnew)
     FVs <- FVs$predictions
   }
 
