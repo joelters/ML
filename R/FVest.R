@@ -159,24 +159,24 @@ FVest <- function(model,
         }
         # Only remove first column if it's actually an intercept
         if (intercept && (ML == "OLS" || ML == "Lasso" || ML == "Ridge" || ML == "loglin")) {
-          M2 <- as.matrix(M[,2:ncol(M)])
+          M2 <- as.matrix(M[,2:ncol(M), drop = FALSE])
           if (ncol(M) == 2){
             colnames(M2) <- colnames(M)[2]
           }
           M <- M2
-          M2train <- as.matrix(Mtrain[,2:ncol(Mtrain)])
+          M2train <- as.matrix(Mtrain[,2:ncol(Mtrain), drop = FALSE])
           if (ncol(Mtrain) == 2){
             colnames(M2train) <- colnames(Mtrain)[2]
           }
           Mtrain <- M2train
         } else if (!(ML == "OLS" || ML == "Lasso" || ML == "Ridge" || ML == "loglin")) {
           # For other models, always remove first column (they always have intercept)
-          M2 <- as.matrix(M[,2:ncol(M)])
+          M2 <- as.matrix(M[,2:ncol(M), drop = FALSE])
           if (ncol(M) == 2){
             colnames(M2) <- colnames(M)[2]
           }
           M <- M2
-          M2train <- as.matrix(Mtrain[,2:ncol(Mtrain)])
+          M2train <- as.matrix(Mtrain[,2:ncol(Mtrain), drop = FALSE])
           if (ncol(Mtrain) == 2){
             colnames(M2train) <- colnames(Mtrain)[2]
           }
@@ -186,7 +186,7 @@ FVest <- function(model,
         if (length(Mnon01) != 0){
           # Add explicit powers only for non-binary columns; 0/1 dummies are unchanged by powers.
           A <- lapply(2:polynomial, function(u){
-            B <- M[,Mnon01]^u
+            B <- M[,Mnon01, drop = FALSE]^u
           })
           A <- do.call(cbind,A)
           colnames(A) <- c(sapply(2:polynomial, function(u){paste(Mnon01,"tothe",u,sep = "")}))

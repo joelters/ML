@@ -87,4 +87,16 @@ test_that("FVest does not infer constant predictor from Xnew batch", {
   expect_equal(as.numeric(FV_const), Ynew_const, tolerance = 1e-8)
 })
 
+test_that("FVest polynomial works with one-row Xnew and multiple predictors", {
+  X_poly2 <- data.frame(x = c(0, 1, 2, 3, 4), z = c(1, 2, 1, 2, 1))
+  Y_poly2 <- 1 + 2 * X_poly2$x + 0.5 * X_poly2$z + 3 * X_poly2$x^2
+  m <- modest(X_poly2, Y_poly2, "OLS", polynomial.OLS = 2)
+
+  expect_no_error(
+    FV1 <- FVest(m, X_poly2, Y_poly2, X_poly2[2, , drop = FALSE], Y_poly2[2],
+                 ML = "OLS", polynomial.OLS = 2)
+  )
+  expect_length(FV1, 1)
+})
+
 
