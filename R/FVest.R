@@ -70,6 +70,7 @@ FVest <- function(model,
                   polynomial.loglin = 1,
                   coefs = NULL,
                   intercept = TRUE){
+  # Standardize user inputs before rebuilding any model-specific design matrix.
   ML = match.arg(ML)
   Ynew <- as.numeric(Ynew)
   if (!("data.frame" %in% class(X))){
@@ -84,8 +85,11 @@ FVest <- function(model,
   dta <- dplyr::as_tibble(cbind(Y = rep(0,nrow(Xnew)),Xnew))
   colnames(dta)[1] <- "Y"
 
+  # Recreate the same transformed feature space used by linear-style learners
+  # whose training path may involve model.matrix and polynomial expansions.
   if (ML == "Lasso" | ML == "Ridge" | ML == "Logit_lasso" | ML == "OLS" |
       ML == "NLLS_exp" | ML == "loglin"){
+    # Pick the polynomial degree that corresponds to the requested learner.
     if (ML == "Lasso"){
       polynomial = polynomial.Lasso
     }
@@ -106,6 +110,7 @@ FVest <- function(model,
     }
     if (polynomial == 1){
       if(ncol(Xnew) == 0){
+        # Handle intercept-only models by creating a single dummy column.
         Xnew = data.frame(rep(1,nrow(Xnew)))
       }
       # Apply intercept control only for OLS, Lasso, Ridge, and loglin
@@ -114,7 +119,8 @@ FVest <- function(model,
       } else {
         MM <- stats::model.matrix(~(.), Xnew)
       }
-      if(ncol(Xnew) == 1 & length(unique(Xnew[, 1])) == 1){
+      # Match training structure: only treat the single predictor as constant if it was constant in X.
+      if(ncol(X) == 1 & length(unique(X[, 1])) == 1){
         aa = as.matrix(MM[,1])
         colnames(aa) = colnames(MM)[1]
         MM = aa
@@ -122,6 +128,7 @@ FVest <- function(model,
     }
     else if (polynomial >= 2){
       if(ncol(Xnew) == 0){
+        # Handle intercept-only models by creating a single dummy column.
         Xnew = data.frame(rep(1,nrow(Xnew)))
       }
       # Apply intercept control only for OLS, Lasso, Ridge, and loglin
@@ -130,7 +137,8 @@ FVest <- function(model,
       } else {
         M <- stats::model.matrix(~(.), Xnew)
       }
-      if(ncol(Xnew) == 1 & length(unique(Xnew[, 1])) == 1){
+      # Match training structure: only treat the single predictor as constant if it was constant in X.
+      if(ncol(X) == 1 & length(unique(X[, 1])) == 1){
         aa = as.matrix(M[,1])
         colnames(aa) = colnames(M)[1]
         M = aa
@@ -138,6 +146,17 @@ FVest <- function(model,
       if (ncol(M) == 1){
         MM = M
       } else{
+        # Decide which columns are truly binary from the training design, not from Xnew.
+        if ((ML == "OLS" | ML == "Lasso" | ML == "Ridge" | ML == "loglin") & !intercept) {
+          Mtrain <- stats::model.matrix(~.-1, X)
+        } else {
+          Mtrain <- stats::model.matrix(~(.), X)
+        }
+        if(ncol(X) == 1 & length(unique(X[, 1])) == 1){
+          aa = as.matrix(Mtrain[,1])
+          colnames(aa) = colnames(Mtrain)[1]
+          Mtrain = aa
+        }
         # Only remove first column if it's actually an intercept
         if (intercept && (ML == "OLS" || ML == "Lasso" || ML == "Ridge" || ML == "loglin")) {
           M2 <- as.matrix(M[,2:ncol(M)])
@@ -145,6 +164,11 @@ FVest <- function(model,
             colnames(M2) <- colnames(M)[2]
           }
           M <- M2
+          M2train <- as.matrix(Mtrain[,2:ncol(Mtrain)])
+          if (ncol(Mtrain) == 2){
+            colnames(M2train) <- colnames(Mtrain)[2]
+          }
+          Mtrain <- M2train
         } else if (!(ML == "OLS" || ML == "Lasso" || ML == "Ridge" || ML == "loglin")) {
           # For other models, always remove first column (they always have intercept)
           M2 <- as.matrix(M[,2:ncol(M)])
@@ -152,9 +176,15 @@ FVest <- function(model,
             colnames(M2) <- colnames(M)[2]
           }
           M <- M2
+          M2train <- as.matrix(Mtrain[,2:ncol(Mtrain)])
+          if (ncol(Mtrain) == 2){
+            colnames(M2train) <- colnames(Mtrain)[2]
+          }
+          Mtrain <- M2train
         }
-        Mnon01 <- colnames(M)[!apply(M,2,function(u){all(u %in% 0:1)})]
+        Mnon01 <- colnames(Mtrain)[!apply(Mtrain,2,function(u){all(u %in% 0:1)})]
         if (length(Mnon01) != 0){
+          # Add explicit powers only for non-binary columns; 0/1 dummies are unchanged by powers.
           A <- lapply(2:polynomial, function(u){
             B <- M[,Mnon01]^u
           })
@@ -170,6 +200,7 @@ FVest <- function(model,
         } else {
           fml <- as.formula(paste("~(.)^",polynomial,sep=""))
         }
+        # Combine interaction terms from model.matrix with the extra power terms above.
         MM <- cbind(stats::model.matrix(fml,Xnew),A)
       }
     }
@@ -189,6 +220,7 @@ FVest <- function(model,
     }
   }
 
+  # Dispatch to the prediction method that matches the fitted learner.
   if (ML == "Lasso" | ML == "Logit_lasso"){
     lstar <- model$lambda.min
     FVs = stats::predict(model,Xnew,
@@ -201,14 +233,15 @@ FVest <- function(model,
   }
 
   else if (ML == "OLS"){
+    # OLS prediction uses the rebuilt design matrix as a regular data frame.
     if (intercept) {
       FVs = stats::predict(model, data.frame(Xnew))
     } else {
-      # For models without intercept, need to be careful with prediction
       FVs = stats::predict(model, data.frame(Xnew))
     }
   }
   else if (ML == "NLLS_exp"){
+    # stats::predict expects a data frame and may return a scalar for intercept-only fits.
     Xnew = data.frame(Xnew)
     FVs = stats::predict(model, Xnew)
     if (length(FVs) == 1){  #if model only contains intercepts it only gives a scalar
@@ -216,11 +249,13 @@ FVest <- function(model,
     }
   }
   else if (ML == "loglin"){
+    # The fitted model is on log(Y), so map predictions back to the original scale.
     FVs = stats::predict(model, data.frame(Xnew))
     FVs = exp(FVs)
   }
 
   else if (ML == "RF"){
+    # Ranger stores the feature names used in training; align Xnew to that order.
     if (length(model$forest$independent.variable.names) == length(names(Xnew))){
       if (!all(model$forest$independent.variable.names == names(Xnew))){
         names(Xnew) = model$forest$independent.variable.names
@@ -256,7 +291,7 @@ FVest <- function(model,
          as input for prediction.")
     }
 
-    #Again label should not have any use here
+    # xgboost predicts from a DMatrix; the label is a placeholder during prediction.
     xgb_data = xgboost::xgb.DMatrix(data = data.matrix(Xnew), label = rep(0,nrow(Xnew)))
     FVs = stats::predict(model, xgb_data)
   }
@@ -269,7 +304,7 @@ FVest <- function(model,
         call. = FALSE
       )
     }
-    #Again label should not have any use here
+    # CatBoost prediction also requires a pool object with a placeholder label.
     # CB.data <- catboost::catboost.load_pool(Xnew,
     #                               label = rep(0,nrow(Xnew)),
     #                               cat_features = c(1:ncol(Xnew)))
@@ -278,23 +313,22 @@ FVest <- function(model,
     FVs <- catboost::catboost.predict(model,CB.data)
   }
   else if (ML == "Torch") {
+    # Torch models expect a numeric tensor rather than a base R data frame.
     Xnew <- stats::model.matrix(~(.), Xnew)
-    # Convert Xnew into a Torch tensor
     Xnew_tensor <- torch::torch_tensor(as.matrix(Xnew), dtype = torch::torch_float())
 
-    # Set the model to evaluation mode (disable dropout)
+    # Disable training-time behavior such as dropout before predicting.
     model$eval()
 
-    # Run forward pass through the trained model
+    # Run the network forward and convert its output back to base R.
     FVs_tensor <- model(Xnew_tensor)
-
-    # Convert tensor output back to R numeric vector
     FVs <- as.numeric(FVs_tensor$squeeze())
 
     return(FVs)
   }
 
   else if (ML == "grf"){
+    # grf returns a richer object; extract only the prediction vector.
     FVs = stats::predict(model, newdata = Xnew)$predictions
   }
   else if (ML == "SL"){
@@ -305,8 +339,8 @@ FVest <- function(model,
       )
     }
     ens <- model$SL.library$library$predAlgorithm
-    # FVs <- model$SL.predict
     if ("SL.CB" %in% ens){
+      # Recompute member predictions manually because SL.CB does not integrate with predict.SuperLearner.
       FVs <- unlist(lapply(ens, function (x){
         sl <- get(x)
         aux <- sl(Y, X, Xnew, family = stats::gaussian(), obsWeights = rep(1,length(Y)))
@@ -323,6 +357,7 @@ FVest <- function(model,
   }
 
   else if (ML == "OLSensemble"){
+    # OLSensemble predicts each base learner first, then combines them linearly.
     if ("FVs" %in% names(model)){
       model = list(models = model$model$models, coefs = model$coefs)
     }
@@ -336,6 +371,7 @@ FVest <- function(model,
            (the intercept)")
     }
     nnew = length(Ynew)
+            # Build the meta-regressor design matrix from each learner's fitted values.
     Xpred = matrix(rep(NA,nnew*length(ensemble)),nnew,length(ensemble))
     for (ii in 1:length(ensemble)){
       Xpred[,ii] = ML::FVest(model$models[[ii]], X, Y, Xnew, Ynew,

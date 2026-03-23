@@ -60,4 +60,31 @@ test_that("SL has no error and gives vector of correct length", {
   expect_length(FV2, nrow(X))
 })
 
+test_that("FVest polynomial terms are based on training X for single-row Xnew", {
+  X_poly <- data.frame(x = c(0, 1, 2, 3, 4))
+  Y_poly <- 1 + 2 * X_poly$x + 3 * X_poly$x^2
+  m <- modest(X_poly, Y_poly, "OLS", polynomial.OLS = 2)
+
+  expect_no_error(
+    FV1 <- FVest(m, X_poly, Y_poly, X_poly[2, , drop = FALSE], Y_poly[2],
+                 ML = "OLS", polynomial.OLS = 2)
+  )
+  expect_equal(as.numeric(FV1), Y_poly[2], tolerance = 1e-8)
+})
+
+test_that("FVest does not infer constant predictor from Xnew batch", {
+  X_poly <- data.frame(x = c(0, 1, 2, 3, 4))
+  Y_poly <- 1 + 2 * X_poly$x + 3 * X_poly$x^2
+  m <- modest(X_poly, Y_poly, "OLS", polynomial.OLS = 2)
+
+  Xnew_const <- data.frame(x = c(1, 1))
+  Ynew_const <- rep(Y_poly[2], 2)
+
+  expect_no_error(
+    FV_const <- FVest(m, X_poly, Y_poly, Xnew_const, Ynew_const,
+                      ML = "OLS", polynomial.OLS = 2)
+  )
+  expect_equal(as.numeric(FV_const), Ynew_const, tolerance = 1e-8)
+})
+
 
