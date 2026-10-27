@@ -14,7 +14,7 @@
 #' @param SL.library is a string vector specifying which learners
 #' should be used in SuperLearner
 #' @param mtry how many variables should be randomly sampled as candidates 
-#' at each split when using RF (not CIF anymore)
+#' at each split when using RF and CIF
 #' @param rf.cf.ntree how many trees should be grown when using RF (not CIF anymore)
 #' @param rf.depth how deep should trees be grown in RF (NULL is default from ranger)
 #' @param polynomial.Lasso degree of polynomial to be fitted when using Lasso.
@@ -271,7 +271,8 @@ modest <- function(X,
 
   else if (ML == "CIF"){
     model <- partykit::cforest(Y ~ .,
-                     data = dta,
+                     data = dta,ç
+                     mtry = mtry,
                      ...)
   }
 
