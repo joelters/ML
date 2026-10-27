@@ -16,6 +16,8 @@
 #' @param SL.library is a string vector specifying which learners
 #' should be used in SuperLearner
 #' @param Kcv number of folds in cross-validation
+#' @param CIF.grid list of hyperparameters to be tuned in CIF. 
+#' see partykit::cforest() for more information of the hyperparameters.
 #' @param rf.cf.ntree.grid how many trees should be grown when using RF or CIF
 #' @param rf.depth.grid how deep should trees be grown in RF, Inf means full depth
 #' (NULL in ranger)
@@ -60,10 +62,10 @@ MLtuning <- function(X,
                  OLSensemble,
                  SL.library,
                  Kcv = 5,
+                 CIF.grid = list(),
                  rf.cf.ntree.grid = c(100,300,500),
                  rf.depth.grid = c(2,4,6,Inf),
                  mtry.grid = c(1,3,5),
-                 cf.depth.grid = c(2,4,6,Inf),
                  ensemblefolds.grid = c(2,5),
                  polynomial.Lasso.grid = c(1,2,3),
                  polynomial.Ridge.grid = c(1,2,3),
@@ -81,7 +83,8 @@ MLtuning <- function(X,
                  torch.epochs.grid = c(50, 100),
                  verbose = FALSE,
                  weights = NULL,
-                 intercept = TRUE){
+                 intercept = TRUE,
+                 ...){
   n <- length(Y)
   X <- dplyr::as_tibble(X)
   ind <- split(seq(n), seq(n) %% Kcv)
@@ -186,35 +189,87 @@ MLtuning <- function(X,
       res = data.frame(combs,res)
       list(res = res, fvs = fvs)
     }
-    else if (u == "CIF"){
-      combs = expand.grid(rf.cf.ntree.grid,mtry.grid,cf.depth.grid)
-      names(combs) = c("rf.cf.ntree","mtry","cf.depth")
-      res = lapply(1:nrow(combs),function(j){
-        rf.cf.ntree = combs$rf.cf.ntree[j]
-        mtry = combs$mtry[j]
-        cf.depth = combs$cf.depth[j]
-        if (verbose == TRUE){
-          print(paste(u, ": Testing combination ", j, "/", nrow(combs), 
-                      " (ntree=", rf.cf.ntree, ", mtry=", mtry, ", depth=", cf.depth, ")", sep = ""))
-        }
-        fv <- rep(0,n)
-        for (i in 1:Kcv){
-          m <- ML::modest(X[-ind[[i]],],Y[-ind[[i]]],ML = u,
-                          rf.cf.ntree = rf.cf.ntree,
-                          mtry = mtry,
-                          cf.depth = cf.depth,
-                          weights = weights[-ind[[i]]])
-          fv[ind[[i]]] <- ML::FVest(m,X[-ind[[i]],],Y[-ind[[i]]],
-                                    X[ind[[i]],],Y[ind[[i]]],ML = u)
-        }
-        list(resMLrmse = data.frame(ML = u, rmse = sqrt(mean((Y-fv)^2) + var_penalization*var(fv))), fvs = fv)
-      })
-      resMLrmse = lapply(1:length(res), function(uu){res[[uu]]$resMLrmse})
-      fvs = lapply(1:length(res), function(uu){res[[uu]]$fvs})
-      res = do.call(rbind,resMLrmse)
-      res = data.frame(combs,res)
-      list(res = res, fvs = fvs)
+    
+else if (u == "CIF") {
+
+  # Native CIF hyperparameter combinations
+  if (length(cif.grid) > 0) {
+    combs <- expand.grid(
+      cif.grid,
+      KEEP.OUT.ATTRS = FALSE
+    )
+  } else {
+    combs <- data.frame(.setting = "default")
+  }
+
+  fixed_args <- list(...)
+
+  if (anyDuplicated(c(names(fixed_args),
+                      names(cif.grid)))) {
+    stop("Duplicate CIF arguments in ... and cif.grid")
+  }
+
+  if ("mtry" %in% c(names(fixed_args), names(cif.grid))) {
+    stop("Native CIF mtry is not supported by modest()")
+  }
+
+  res <- lapply(seq_len(nrow(combs)), function(j) {
+
+    grid_args <- if (length(cif.grid) > 0) {
+      lapply(combs, function(z) z[[j]])
+    } else {
+      list()
     }
+
+    cif_args <- c(fixed_args, grid_args)
+
+    fv <- rep(0, n)
+
+    for (i in seq_len(Kcv)) {
+
+      m <- do.call(
+        ML::modest,
+        c(
+          list(
+            X = X[-ind[[i]], ],
+            Y = Y[-ind[[i]]],
+            ML = "CIF",
+            weights = weights[-ind[[i]]]
+          ),
+          cif_args
+        )
+      )
+
+      fv[ind[[i]]] <- ML::FVest(
+        m,
+        X[-ind[[i]], ],
+        Y[-ind[[i]]],
+        X[ind[[i]], ],
+        Y[ind[[i]]],
+        ML = "CIF"
+      )
+    }
+
+    list(
+      resMLrmse = data.frame(
+        ML = u,
+        rmse = sqrt(
+          mean((Y - fv)^2) +
+            var_penalization * var(fv)
+        )
+      ),
+      fvs = fv
+    )
+  })
+
+  resMLrmse <- lapply(res, function(z) z$resMLrmse)
+  fvs <- lapply(res, function(z) z$fvs)
+
+  res <- cbind(combs, do.call(rbind, resMLrmse))
+
+  list(res = res, fvs = fvs)
+}
+
     else if (u == "XGB"){
       combs = expand.grid(xgb.nrounds.grid,xgb.max.depth.grid)
       names(combs) = c("xgb.nrounds","xgb.max.depth")

@@ -18,7 +18,8 @@ FVest(
   polynomial.OLS = 1,
   polynomial.NLLS_exp = 1,
   polynomial.loglin = 1,
-  coefs = NULL
+  coefs = NULL,
+  intercept = TRUE
 )
 }
 \arguments{
@@ -61,6 +62,9 @@ see polynomial.Lasso for more info.}
 see polynomial.Lasso for more info.}
 
 \item{coefs}{optimal coefficients for OLSensemble, computed in modest}
+
+\item{intercept}{logical; should an intercept be included in the model? Default is TRUE.
+Only applies to OLS, Lasso, Ridge, and loglin.}
 }
 \value{
 vector with fitted values

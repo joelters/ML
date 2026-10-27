@@ -14,7 +14,6 @@ modest(
   rf.cf.ntree = 500,
   rf.depth = NULL,
   mtry = max(floor(ncol(X)/3), 1),
-  cf.depth = Inf,
   polynomial.Lasso = 1,
   polynomial.Ridge = 1,
   polynomial.Logit_lasso = 1,
@@ -31,7 +30,9 @@ modest(
   torch.hidden_units = c(64, 32),
   torch.lr = 0.01,
   torch.dropout = 0.2,
-  weights = NULL
+  weights = NULL,
+  intercept = TRUE,
+  ...
 )
 }
 \arguments{
@@ -47,11 +48,12 @@ should be used in OLS ensemble method}
 \item{SL.library}{is a string vector specifying which learners
 should be used in SuperLearner}
 
-\item{rf.cf.ntree}{how many trees should be grown when using RF or CIF}
+\item{rf.cf.ntree}{how many trees should be grown when using RF (not CIF anymore)}
 
 \item{rf.depth}{how deep should trees be grown in RF (NULL is default from ranger)}
 
-\item{cf.depth}{how deep should trees be grown in CIF (Inf is default from partykit)}
+\item{mtry}{how many variables should be randomly sampled as candidates
+at each split when using RF (not CIF anymore)}
 
 \item{polynomial.Lasso}{degree of polynomial to be fitted when using Lasso.
 1 just fits the input X. 2 squares all variables and adds
@@ -100,6 +102,13 @@ optimizer when training the Torch neural network.}
 for regularization in the Torch neural network.}
 
 \item{weights}{is a vector containing survey weights adding up to 1}
+
+\item{intercept}{logical; should an intercept be included in the model? Default is TRUE.
+Only applies to OLS, Lasso, Ridge, and loglin.}
+
+\item{...}{Additional arguments passed to
+\code{partykit::cforest()} when ML = "CIF".
+Otherwise ignored.}
 }
 \value{
 the object that the machine learner package returns, in case of OLSensemble

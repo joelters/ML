@@ -15,10 +15,9 @@
 #' should be used in OLS ensemble method
 #' @param SL.library is a string vector specifying which learners
 #' should be used in SuperLearner
-#' @param rf.cf.ntree how many trees should be grown when using RF or CIF
+#' @param rf.cf.ntree how many trees should be grown when using RF (not CIF anymore)
 #' @param rf.depth how deep should trees be grown in RF (NULL is default from ranger)
-#' @param cf.depth how deep should trees be grown in CIF (Inf is default from partykit)
-#' @param mtry how many variables to consider at each split in RF
+#' @param mtry how many variables to consider at each split in RF (not CIF anymore)
 #' @param polynomial.Lasso degree of polynomial to be fitted when using Lasso.
 #' 1 just fits the input X. 2 squares all variables and adds
 #' all pairwise interactions. 3 squares and cubes all variables and adds all
@@ -52,6 +51,9 @@
 #' @param ensemblefolds number of folds to split in OLSensemble method
 #' @param intercept logical; should an intercept be included in the model? Default is TRUE.
 #' Only applies to OLS, Lasso, Ridge, and loglin.
+#' @param ... Additional arguments passed to
+#'   \code{partykit::cforest()} when ML = "CIF".
+#'   Otherwise ignored.
 #' @returns list containing model and fitted values
 #' @examples
 #' X <- dplyr::select(mad2019,-Y)
@@ -77,7 +79,6 @@ MLest <- function(X,
                   rf.cf.ntree = 500,
                   rf.depth = NULL,
                   mtry = max(floor(ncol(X)/3), 1),
-                  cf.depth = Inf,
                   polynomial.Lasso = 1,
                   polynomial.Ridge = 1,
                   polynomial.Logit_lasso = 1,
@@ -96,7 +97,8 @@ MLest <- function(X,
                   FVs = TRUE,
                   ensemblefolds = 2,
                   weights = NULL,
-                  intercept = TRUE){
+                  intercept = TRUE,
+                  ...){
   ML = match.arg(ML)
   X <- data.frame(X)
   if (ML == "SL"){
@@ -124,7 +126,6 @@ MLest <- function(X,
                 rf.cf.ntree = rf.cf.ntree,
                 rf.depth = rf.depth,
                 mtry = mtry,
-                cf.depth = cf.depth,
                 polynomial.Lasso = polynomial.Lasso,
                 polynomial.Ridge = polynomial.Ridge,
                 polynomial.Logit_lasso = polynomial.Logit_lasso,
@@ -141,7 +142,8 @@ MLest <- function(X,
                 torch.lr = torch.lr,
                 torch.dropout = torch.dropout,
                 ensemblefolds = ensemblefolds,
-                intercept = intercept)
+                intercept = intercept,
+                ...)
     if (ML == "OLSensemble"){
       coefs = m$coefs
       # m = m$models

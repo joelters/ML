@@ -25,7 +25,8 @@ MLcv(
   cb.iterations = 500,
   cb.depth = 6,
   verbose = FALSE,
-  weights = NULL
+  weights = NULL,
+  intercept = TRUE
 )
 }
 \arguments{
@@ -79,6 +80,13 @@ see polynomial.Lasso for more info.}
 \item{verbose}{logical specifying whether to print progress}
 
 \item{weights}{is a vector containing survey weights adding up to 1}
+
+\item{intercept}{logical; should an intercept be included in the model? Default is TRUE.
+Only applies to OLS, Lasso, Ridge, and loglin.}
+
+\item{...}{Additional arguments passed to
+\code{partykit::cforest()} when ML = "CIF".
+Otherwise ignored.}
 }
 \value{
 list containing ML attaining minimum RMSE and RMSE

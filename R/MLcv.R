@@ -39,6 +39,9 @@
 #' @param weights is a vector containing survey weights adding up to 1
 #' @param intercept logical; should an intercept be included in the model? Default is TRUE.
 #' Only applies to OLS, Lasso, Ridge, and loglin.
+#' @param ... Additional arguments passed to
+#'   \code{partykit::cforest()} when ML = "CIF".
+#'   Otherwise ignored.
 #' @returns list containing ML attaining minimum RMSE and RMSE
 #'
 #'
@@ -90,7 +93,8 @@ MLcv <- function(X,
                       cb.depth = cb.depth,
                       ensemblefolds = ensemblefolds,
                       weights = weights[-ind[[i]]],
-                      intercept = intercept)
+                      intercept = intercept,
+                      ...)
       if (u == "OLSensemble"){
         coefs = m$coefs
         m = m$models

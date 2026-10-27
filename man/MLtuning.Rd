@@ -13,10 +13,10 @@ MLtuning(
   OLSensemble,
   SL.library,
   Kcv = 5,
+  CIF.grid = list(),
   rf.cf.ntree.grid = c(100, 300, 500),
   rf.depth.grid = c(2, 4, 6, Inf),
   mtry.grid = c(1, 3, 5),
-  cf.depth.grid = c(2, 4, 6, Inf),
   ensemblefolds.grid = c(2, 5),
   polynomial.Lasso.grid = c(1, 2, 3),
   polynomial.Ridge.grid = c(1, 2, 3),
@@ -33,7 +33,9 @@ MLtuning(
   torch.dropout.grid = c(0.1, 0.2, 0.3),
   torch.epochs.grid = c(50, 100),
   verbose = FALSE,
-  weights = NULL
+  weights = NULL,
+  intercept = TRUE,
+  ...
 )
 }
 \arguments{
@@ -52,6 +54,9 @@ should be used in OLS ensemble method}
 should be used in SuperLearner}
 
 \item{Kcv}{number of folds in cross-validation}
+
+\item{CIF.grid}{list of hyperparameters to be tuned in CIF.
+see partykit::cforest() for more information of the hyperparameters.}
 
 \item{rf.cf.ntree.grid}{how many trees should be grown when using RF or CIF}
 
@@ -86,6 +91,11 @@ see polynomial.Lasso for more info.}
 \item{xgb.max.depth.grid}{is an integer specifying how deep trees should be grown in XGB}
 
 \item{verbose}{logical specifying whether to print progress}
+
+\item{weights}{is a vector containing survey weights adding up to 1}
+
+\item{intercept}{logical; should an intercept be included in the model? Default is TRUE.
+Only applies to OLS, Lasso, Ridge, and loglin.}
 
 \item{cf.depth}{how deep should trees be grown in CIF (Inf is full depth,
 default from partykit)}

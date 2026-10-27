@@ -13,9 +13,10 @@
 #' should be used in OLS ensemble method
 #' @param SL.library is a string vector specifying which learners
 #' should be used in SuperLearner
-#' @param rf.cf.ntree how many trees should be grown when using RF or CIF
+#' @param mtry how many variables should be randomly sampled as candidates 
+#' at each split when using RF (not CIF anymore)
+#' @param rf.cf.ntree how many trees should be grown when using RF (not CIF anymore)
 #' @param rf.depth how deep should trees be grown in RF (NULL is default from ranger)
-#' @param cf.depth how deep should trees be grown in CIF (Inf is default from partykit)
 #' @param polynomial.Lasso degree of polynomial to be fitted when using Lasso.
 #' 1 just fits the input X. 2 squares all variables and adds
 #' all pairwise interactions. 3 squares and cubes all variables and adds all
@@ -49,6 +50,9 @@
 #' @param weights is a vector containing survey weights adding up to 1
 #' @param intercept logical; should an intercept be included in the model? Default is TRUE.
 #' Only applies to OLS, Lasso, Ridge, and loglin.
+#' @param ... Additional arguments passed to
+#'   \code{partykit::cforest()} when ML = "CIF".
+#'   Otherwise ignored.
 #' @returns the object that the machine learner package returns, in case of OLSensemble
 #' it returns the coefficients assigned to each machine learner in ensemble
 #' @examples
@@ -76,7 +80,6 @@ modest <- function(X,
                    rf.cf.ntree = 500,
                    rf.depth = NULL,
                    mtry = max(floor(ncol(X)/3), 1),
-                   cf.depth = Inf,
                    polynomial.Lasso = 1,
                    polynomial.Ridge = 1,
                    polynomial.Logit_lasso = 1,
@@ -94,7 +97,8 @@ modest <- function(X,
                    torch.lr = 0.01,
                    torch.dropout = 0.2,
                    weights = NULL,
-                   intercept = TRUE){
+                   intercept = TRUE,
+                   ...){
   Y <- as.numeric(Y)
   ML = match.arg(ML)
   dta <- dplyr::as_tibble(cbind(Y = Y,X))
@@ -268,10 +272,7 @@ modest <- function(X,
   else if (ML == "CIF"){
     model <- partykit::cforest(Y ~ .,
                      data = dta,
-                     ntree = rf.cf.ntree,
-                     mtry = mtry,
-                     control = partykit::ctree_control(maxdepth = cf.depth),
-                     weights = weights)
+                     ...)
   }
 
   else if (ML == "XGB"){
