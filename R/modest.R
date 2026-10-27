@@ -271,7 +271,7 @@ modest <- function(X,
 
   else if (ML == "CIF"){
     model <- partykit::cforest(Y ~ .,
-                     data = dta,ç
+                     data = dta,
                      mtry = mtry,
                      ...)
   }
